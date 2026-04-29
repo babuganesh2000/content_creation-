@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DBT × Snowflake — Complete Jinja→SQL Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #080c14;
+  --surface:   #0d1220;
+  --card:      #111827;
+  --border:    #1a2840;
+  --accent1:   #38bdf8;
+  --accent2:   #22d3ee;
+  --accent3:   #fb923c;
+  --accent4:   #a78bfa;
+  --accent5:   #34d399;
+  --accent6:   #f472b6;
+  --accent7:   #facc15;
+  --text:      #e2ecff;
+  --muted:     #5c7a9e;
+  --code-bg:   #060a12;
+  --jinja-col: #fcd34d;
+  --sql-col:   #6ee7b7;
+  --why-col:   #f9a8d4;
+  --r: 12px;
+  --pr: 6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* HERO */
+.hero{position:relative;text-align:center;padding:56px 24px 40px;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 1000px 350px at 50% -5%,rgba(56,189,248,.1) 0%,transparent 65%),
+             radial-gradient(ellipse 500px 300px at 85% 90%,rgba(167,139,250,.07) 0%,transparent 60%);
+  pointer-events:none}
+.hero-tag{display:inline-block;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);
+  color:var(--accent1);font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.15em;
+  padding:4px 14px;border-radius:20px;margin-bottom:18px;text-transform:uppercase}
+.hero h1{font-size:clamp(1.8rem,4.5vw,3.2rem);font-weight:800;line-height:1.1;
+  background:linear-gradient(135deg,#e2ecff 0%,var(--accent1) 45%,var(--accent4) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.hero-sub{color:var(--muted);font-size:.88rem;max-width:680px;margin:0 auto 8px;line-height:1.7}
+.badge-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:16px}
+.hero-badge{font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:4px 10px;border-radius:20px;
+  border:1px solid;opacity:.85}
+
+/* NAV */
+.nav-outer{position:sticky;top:0;z-index:100;background:rgba(8,12,20,.92);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border)}
+.nav-bar{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;padding:0 16px}
+.nav-bar::-webkit-scrollbar{display:none}
+.nav-pill{flex-shrink:0;background:none;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;
+  font-size:.68rem;padding:13px 13px;cursor:pointer;border-bottom:2px solid transparent;
+  transition:all .2s;white-space:nowrap;letter-spacing:.03em}
+.nav-pill:hover{color:var(--accent1)}
+.nav-pill.active{color:var(--accent1);border-bottom-color:var(--accent1)}
+
+/* SECTIONS */
+.section{display:none;padding:28px 20px 60px;max-width:1200px;margin:0 auto}
+.section.active{display:block}
+.sec-header{margin-bottom:32px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.sec-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--accent3);margin-bottom:6px}
+.sec-title{font-size:1.7rem;font-weight:800;margin-bottom:6px}
+.sec-desc{color:var(--muted);font-size:.87rem;line-height:1.65}
+
+/* CARD */
+.jinja-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:24px;overflow:hidden}
+.card-head{display:flex;align-items:center;gap:8px;padding:14px 18px;background:rgba(255,255,255,.02);
+  border-bottom:1px solid var(--border);flex-wrap:wrap}
+.card-title{font-size:.95rem;font-weight:700;flex:1;min-width:180px}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:3px 8px;border-radius:4px;
+  font-weight:600;letter-spacing:.04em;white-space:nowrap}
+.b-j{background:rgba(252,211,77,.12);color:var(--jinja-col);border:1px solid rgba(252,211,77,.25)}
+.b-s{background:rgba(110,231,183,.1);color:var(--sql-col);border:1px solid rgba(110,231,183,.25)}
+.b-w{background:rgba(249,168,212,.1);color:var(--why-col);border:1px solid rgba(249,168,212,.25)}
+.b-c{background:rgba(249,115,22,.12);color:var(--accent3);border:1px solid rgba(249,115,22,.25)}
+.b-m{background:rgba(167,139,250,.12);color:var(--accent4);border:1px solid rgba(167,139,250,.25)}
+.b-n{background:rgba(52,211,153,.12);color:var(--accent5);border:1px solid rgba(52,211,153,.25)}
+.b-y{background:rgba(250,204,21,.12);color:var(--accent7);border:1px solid rgba(250,204,21,.25)}
+.b-p{background:rgba(244,114,182,.12);color:var(--accent6);border:1px solid rgba(244,114,182,.25)}
+.card-body{padding:18px}
+
+/* CODE */
+.code-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:5px 11px;border-radius:var(--pr) var(--pr) 0 0;display:inline-block}
+.l-j{background:rgba(252,211,77,.18);color:var(--jinja-col)}
+.l-s{background:rgba(110,231,183,.13);color:var(--sql-col)}
+.l-y{background:rgba(249,115,22,.13);color:var(--accent3)}
+.l-p{background:rgba(167,139,250,.13);color:var(--accent4)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:0 var(--pr) var(--pr) var(--pr);
+  padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:.76rem;line-height:1.65;
+  overflow-x:auto;margin-bottom:14px;white-space:pre}
+.arrow-row{display:flex;align-items:center;gap:10px;margin:6px 0;color:var(--muted);
+  font-family:'JetBrains Mono',monospace;font-size:.7rem}
+.arrow-row::before,.arrow-row::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* INSIGHT */
+.insight{display:flex;gap:11px;padding:12px 15px;border-radius:8px;margin-top:10px;
+  font-size:.82rem;line-height:1.65}
+.i-why{background:rgba(249,168,212,.06);border:1px solid rgba(249,168,212,.18)}
+.i-tip{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18)}
+.i-warn{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18)}
+.i-snow{background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.18)}
+.i-new{background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.18)}
+.i-icon{font-size:1rem;flex-shrink:0;margin-top:2px}
+.i-body{color:var(--text)}
+.i-body strong{color:#fff}
+
+/* TABLES */
+.ref-table,.cmp-table{width:100%;border-collapse:collapse;font-size:.8rem;margin:14px 0}
+.ref-table th,.cmp-table th{background:rgba(255,255,255,.035);color:var(--accent1);text-align:left;
+  padding:9px 13px;font-weight:600;border-bottom:2px solid var(--border);font-size:.68rem;
+  letter-spacing:.08em;text-transform:uppercase}
+.ref-table td,.cmp-table td{padding:8px 13px;border-bottom:1px solid rgba(26,40,64,.5);
+  vertical-align:top;line-height:1.5}
+.ref-table tr:hover td,.cmp-table tr:hover td{background:rgba(255,255,255,.02)}
+.ref-table td:first-child{color:var(--jinja-col);font-family:'JetBrains Mono',monospace;font-size:.75rem}
+.ref-table td:nth-child(2){color:var(--sql-col);font-family:'JetBrains Mono',monospace;font-size:.75rem}
+.ref-table td:nth-child(3){color:var(--muted);font-family:'Syne',sans-serif;font-size:.77rem}
+.yes{color:var(--accent5);font-weight:700}.no{color:#f87171;font-weight:700}.na{color:var(--muted)}
+code{font-family:'JetBrains Mono',monospace;font-size:.78em;background:rgba(255,255,255,.06);
+  padding:1px 5px;border-radius:3px;color:var(--jinja-col)}
+
+/* SYNTAX COLORS */
+.kw{color:#93c5fd}.fn{color:#86efac}.str{color:#fca5a5}
+.jt{color:var(--jinja-col)}.jf{color:#fb923c}.jv{color:var(--accent4)}
+.cm{color:#334155;font-style:italic}.nm{color:#c4b5fd}
+
+/* LAYOUT */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:768px){.two-col{grid-template-columns:1fr}}
+.divider{height:1px;background:var(--border);margin:22px 0}
+h3.sub{font-size:.95rem;font-weight:700;margin:20px 0 10px;color:var(--accent2)}
+
+/* FLOW */
+.flow-row{display:flex;align-items:stretch;flex-wrap:wrap;margin:16px 0}
+.flow-box{flex:1;min-width:110px;background:var(--card);border:1px solid var(--border);
+  padding:12px 11px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.72rem}
+.flow-box:first-child{border-radius:var(--r) 0 0 var(--r)}
+.flow-box:last-child{border-radius:0 var(--r) var(--r) 0}
+.flow-arr{display:flex;align-items:center;color:var(--muted);font-size:1.1rem;padding:0 3px}
+.flow-val{color:var(--accent1);font-weight:700;font-size:.8rem}
+.flow-lbl{font-size:.59rem;color:var(--muted);margin-top:3px}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.new-badge{display:inline-block;background:rgba(167,139,250,.2);color:var(--accent4);
+  font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:1px 6px;border-radius:3px;
+  vertical-align:middle;margin-left:6px;border:1px solid rgba(167,139,250,.3)}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">❄️ Complete DBT + Snowflake — Jinja → SQL</div>
+  <h1>DBT × Snowflake<br>Complete Reference</h1>
+  <p class="hero-sub">Every Jinja construct, every Snowflake-specific config, compiled SQL output side-by-side — plus the <em>why</em> behind every design decision. Dynamic Tables, Python Models, Contracts, Grants, MetricFlow and more.</p>
+  <div class="badge-row">
+    <span class="hero-badge" style="color:var(--jinja-col);border-color:rgba(252,211,77,.3)">Jinja Templates</span>
+    <span class="hero-badge" style="color:var(--sql-col);border-color:rgba(110,231,183,.3)">Compiled SQL</span>
+    <span class="hero-badge" style="color:var(--accent4);border-color:rgba(167,139,250,.3)">Dynamic Tables NEW</span>
+    <span class="hero-badge" style="color:var(--accent5);border-color:rgba(52,211,153,.3)">Python Models</span>
+    <span class="hero-badge" style="color:var(--accent3);border-color:rgba(249,115,22,.3)">Contracts + Grants</span>
+    <span class="hero-badge" style="color:var(--accent6);border-color:rgba(244,114,182,.3)">MetricFlow</span>
+  </div>
+</div>
+
+<div class="nav-outer">
+<nav class="nav-bar">
+  <button class="nav-pill active" onclick="sw(this,'ref')">01 ref() &amp; source()</button>
+  <button class="nav-pill" onclick="sw(this,'config')">02 config{{}}</button>
+  <button class="nav-pill" onclick="sw(this,'macros')">03 Macros</button>
+  <button class="nav-pill" onclick="sw(this,'control')">04 Control Flow</button>
+  <button class="nav-pill" onclick="sw(this,'vars')">05 vars &amp; env_var</button>
+  <button class="nav-pill" onclick="sw(this,'incremental')">06 Incremental</button>
+  <button class="nav-pill" onclick="sw(this,'snapshots')">07 Snapshots SCD2</button>
+  <button class="nav-pill" onclick="sw(this,'dynamic')">08 Dynamic Tables ★</button>
+  <button class="nav-pill" onclick="sw(this,'python')">09 Python Models ★</button>
+  <button class="nav-pill" onclick="sw(this,'contracts')">10 Contracts &amp; Grants ★</button>
+  <button class="nav-pill" onclick="sw(this,'seeds')">11 Seeds &amp; Sources</button>
+  <button class="nav-pill" onclick="sw(this,'tests')">12 Tests &amp; Quality</button>
+  <button class="nav-pill" onclick="sw(this,'hooks')">13 Hooks, Tags &amp; Project</button>
+  <button class="nav-pill" onclick="sw(this,'versioning')">14 Model Versioning ★</button>
+  <button class="nav-pill" onclick="sw(this,'masking')">15 Row/Col Policies ★</button>
+  <button class="nav-pill" onclick="sw(this,'metricflow')">16 MetricFlow ★</button>
+  <button class="nav-pill" onclick="sw(this,'utils')">17 dbt-utils</button>
+  <button class="nav-pill" onclick="sw(this,'compile')">18 Compile Flow</button>
+</nav>
+</div>
+
+<!-- ══ 01 REF & SOURCE ══ -->
+<div id="ref" class="section active">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 01</div>
+    <div class="sec-title">{{ ref() }} vs {{ source() }}</div>
+    <div class="sec-desc">The two most fundamental Jinja functions. <code>ref()</code> is for models you own. <code>source()</code> is for tables loaded externally. Both compile to fully qualified Snowflake object names.</div>
+  </div>
+
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">{{ ref('model_name') }} — Cross-model Reference</div><span class="badge b-j">JINJA</span><span class="badge b-s">SNOWFLAKE SQL</span><span class="badge b-w">WHY</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ DBT Model (Jinja)</div>
+<pre><span class="cm">-- models/marts/fct_claims.sql</span>
+<span class="kw">SELECT</span>
+    c.claim_id,
+    c.patient_id,
+    p.payer_name,
+    c.billed_amount
+<span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'stg_claims'</span>) <span class="jt">}}</span>  <span class="cm">-- dbt resolves this</span>
+<span class="kw">AS</span> c
+<span class="kw">JOIN</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'dim_payers'</span>) <span class="jt">}}</span> <span class="kw">AS</span> p
+  <span class="kw">ON</span> c.payer_id = p.payer_id</pre>
+      <div class="arrow-row">dbt compile → fully qualified Snowflake SQL</div>
+      <div class="code-label l-s">✦ Compiled Snowflake SQL</div>
+<pre><span class="kw">SELECT</span>
+    c.claim_id, c.patient_id, p.payer_name, c.billed_amount
+<span class="kw">FROM</span> <span class="fn">ANALYTICS_DB.STAGING.STG_CLAIMS</span>  <span class="cm">-- fully qualified</span>
+<span class="kw">AS</span> c
+<span class="kw">JOIN</span> <span class="fn">ANALYTICS_DB.MARTS.DIM_PAYERS</span> <span class="kw">AS</span> p
+  <span class="kw">ON</span> c.payer_id = p.payer_id</pre>
+      <div class="insight i-why"><div class="i-icon">🧠</div><div class="i-body"><strong>Why ref() instead of hardcoding?</strong><br>
+      1. <strong>DAG engine:</strong> Every ref() adds an edge to the dependency graph — dbt knows fct_claims depends on stg_claims and executes them in order.<br>
+      2. <strong>Environment portability:</strong> In DEV the table lives in DEV_DB.STAGING, in PROD it's ANALYTICS_DB.STAGING. ref() auto-resolves to the right database for the active target — one model file works everywhere.<br>
+      3. <strong>Lineage & docs:</strong> dbt Explorer traces every column back to its source because ref() creates explicit graph edges.</div></div>
+      <div class="insight i-snow"><div class="i-icon">❄️</div><div class="i-body"><strong>Snowflake-specific:</strong> The compiled output is always <code>DATABASE.SCHEMA.TABLE</code> — the three-part identifier Snowflake requires for cross-schema joins. dbt injects the correct database from your profiles.yml target.</div></div>
+    </div>
+  </div>
+
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">{{ source('src', 'table') }} — Raw / External Tables</div><span class="badge b-j">JINJA</span><span class="badge b-s">SNOWFLAKE SQL</span><span class="badge b-w">WHY NOT ref()</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ DBT Model (Jinja)</div>
+<pre><span class="kw">SELECT</span>
+    claim_id,
+    <span class="fn">UPPER</span>(claim_status) <span class="kw">AS</span> claim_status,
+    billed_amount
+<span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">source</span>(<span class="str">'credible'</span>, <span class="str">'claims'</span>) <span class="jt">}}</span>
+<span class="kw">WHERE</span> load_date = <span class="fn">CURRENT_DATE</span>()</pre>
+      <div class="code-label l-y">✦ sources.yml (declares the source)</div>
+<pre>sources:
+  - name: credible
+    database: RAW_DB
+    schema: CREDIBLE_ALPHA
+    freshness:
+      warn_after:  {count: 6,  period: hour}
+      error_after: {count: 24, period: hour}
+    tables:
+      - name: claims
+        loaded_at_field: load_date
+        description: "Raw claims from Credible Alpha EHR"</pre>
+      <div class="arrow-row">compile</div>
+      <div class="code-label l-s">✦ Compiled Snowflake SQL</div>
+<pre><span class="kw">SELECT</span>
+    claim_id,
+    <span class="fn">UPPER</span>(claim_status) <span class="kw">AS</span> claim_status,
+    billed_amount
+<span class="kw">FROM</span> <span class="fn">RAW_DB.CREDIBLE_ALPHA.CLAIMS</span>
+<span class="kw">WHERE</span> load_date = <span class="fn">CURRENT_DATE</span>()</pre>
+      <div class="insight i-why"><div class="i-icon">🧠</div><div class="i-body"><strong>ref() vs source() — the contract:</strong><br>
+      <code>ref()</code> = tables dbt built. <code>source()</code> = tables ADF/Fivetran/Snowpipe loaded. This boundary enables <strong>source freshness checks</strong> (<code>dbt source freshness</code>) — dbt can alert you when RAW data stops arriving. You can't do freshness checks with ref() because dbt controls when its own models run.</div></div>
+
+      <h3 class="sub">ref() vs source() — Decision Matrix</h3>
+      <table class="cmp-table">
+        <thead><tr><th>Question</th><th>ref()</th><th>source()</th></tr></thead>
+        <tbody>
+          <tr><td>Table created by a dbt model?</td><td class="yes">✓ YES</td><td class="no">✗ NO</td></tr>
+          <tr><td>Table loaded by ADF / Snowpipe?</td><td class="no">✗ NO</td><td class="yes">✓ YES</td></tr>
+          <tr><td>Source freshness check possible?</td><td class="no">✗ NO</td><td class="yes">✓ YES</td></tr>
+          <tr><td>Adds edge to DAG?</td><td class="yes">✓ YES</td><td class="yes">✓ YES (source node)</td></tr>
+          <tr><td>Env-aware (dev/prod)?</td><td class="yes">✓ YES</td><td class="yes">✓ via sources.yml</td></tr>
+          <tr><td>Can have column tests?</td><td class="yes">✓ schema.yml</td><td class="yes">✓ sources.yml</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 02 CONFIG ══ -->
+<div id="config" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 02</div>
+    <div class="sec-title">{{ config({}) }} — Model Configuration</div>
+    <div class="sec-desc">The config block controls what Snowflake object is created, its properties, and how dbt behaves around it. It never emits SQL itself — it's pure metadata.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Full Snowflake Config — Table with all options</div><span class="badge b-c">CONFIG</span><span class="badge b-s">DDL GENERATED</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ config() block in model</div>
+<pre><span class="jt">{{</span> <span class="jf">config</span>(
+    materialized          = <span class="str">'table'</span>,
+    schema                = <span class="str">'marts'</span>,
+    database              = <span class="str">'ANALYTICS_DB'</span>,
+    alias                 = <span class="str">'fct_claims_final'</span>,
+    cluster_by            = [<span class="str">'claim_date'</span>, <span class="str">'payer_id'</span>],
+    transient             = <span class="nm">false</span>,          <span class="cm">-- permanent table (fail-safe)</span>
+    copy_grants           = <span class="nm">true</span>,           <span class="cm">-- preserve grants on rebuild</span>
+    snowflake_warehouse   = <span class="str">'TRANSFORM_WH'</span>,
+    query_tag             = <span class="str">'dbt_fct_claims'</span>,
+    automatic_clustering  = <span class="nm">true</span>,
+    on_schema_change      = <span class="str">'append_new_columns'</span>,
+    persist_docs          = {<span class="str">'relation'</span>: <span class="nm">true</span>, <span class="str">'columns'</span>: <span class="nm">true</span>},
+    post_hook             = [
+        <span class="str">"GRANT SELECT ON {{ this }} TO ROLE REPORTER"</span>
+    ],
+    tags                  = [<span class="str">'daily'</span>, <span class="str">'claims'</span>]
+) <span class="jt">}}</span></pre>
+      <div class="arrow-row">dbt run → Snowflake DDL sequence</div>
+      <div class="code-label l-s">✦ Snowflake DDL dbt executes</div>
+<pre><span class="cm">-- 1. Set context</span>
+<span class="fn">USE WAREHOUSE</span> TRANSFORM_WH;
+<span class="fn">ALTER SESSION SET</span> QUERY_TAG = <span class="str">'dbt_fct_claims'</span>;
+
+<span class="cm">-- 2. Build into temp object</span>
+<span class="kw">CREATE OR REPLACE</span> <span class="fn">TABLE</span>               <span class="cm">-- permanent (transient=false)</span>
+    ANALYTICS_DB.MARTS.FCT_CLAIMS_FINAL__DBT_TMP
+<span class="fn">CLUSTER BY</span> (claim_date, payer_id)
+<span class="fn">COPY GRANTS</span>
+<span class="kw">AS</span> ( &lt;your SELECT&gt; );
+
+<span class="cm">-- 3. Atomic swap</span>
+<span class="fn">ALTER TABLE</span> FCT_CLAIMS_FINAL__DBT_TMP
+    <span class="fn">RENAME TO</span> FCT_CLAIMS_FINAL;
+
+<span class="cm">-- 4. Post-hook</span>
+<span class="kw">GRANT SELECT ON</span> ANALYTICS_DB.MARTS.FCT_CLAIMS_FINAL
+    <span class="kw">TO ROLE</span> REPORTER;
+
+<span class="cm">-- 5. persist_docs → Snowflake object comments</span>
+<span class="fn">COMMENT ON TABLE</span> ANALYTICS_DB.MARTS.FCT_CLAIMS_FINAL
+    <span class="kw">IS</span> <span class="str">'Fact table for claims... (from schema.yml description)'</span>;</pre>
+
+      <h3 class="sub">Config Key → Snowflake DDL Mapping</h3>
+      <table class="ref-table">
+        <thead><tr><th>Config Key</th><th>Snowflake DDL Effect</th><th>When to Use</th></tr></thead>
+        <tbody>
+          <tr><td>materialized='table'</td><td>CREATE OR REPLACE TABLE</td><td>Final marts, facts, dims</td></tr>
+          <tr><td>materialized='view'</td><td>CREATE OR REPLACE VIEW</td><td>Staging logic, thin transforms</td></tr>
+          <tr><td>materialized='incremental'</td><td>MERGE / INSERT INTO</td><td>Large append/upsert tables</td></tr>
+          <tr><td>materialized='ephemeral'</td><td>Inlined as CTE</td><td>Intermediate logic, no object needed</td></tr>
+          <tr><td>materialized='dynamic_table'</td><td>CREATE DYNAMIC TABLE</td><td>Near-real-time automated refresh</td></tr>
+          <tr><td>cluster_by=[...]</td><td>CLUSTER BY (col1, col2)</td><td>Large tables filtered by date/payer</td></tr>
+          <tr><td>transient=false</td><td>Permanent table + 7-day fail-safe</td><td>Production facts/dims</td></tr>
+          <tr><td>transient=true</td><td>TRANSIENT TABLE (no fail-safe)</td><td>Intermediary/staging (cost saving)</td></tr>
+          <tr><td>copy_grants=true</td><td>Copies grants on rebuild</td><td>Any table with RBAC grants</td></tr>
+          <tr><td>alias='name'</td><td>Table named 'name' not .sql filename</td><td>Legacy names, API contracts</td></tr>
+          <tr><td>snowflake_warehouse='...'</td><td>USE WAREHOUSE before run</td><td>Per-model warehouse routing</td></tr>
+          <tr><td>query_tag='...'</td><td>SET QUERY_TAG before run</td><td>Cost attribution in Query History</td></tr>
+          <tr><td>automatic_clustering=true</td><td>Enables auto reclustering</td><td>Append-heavy clustered tables</td></tr>
+          <tr><td>on_schema_change='...'</td><td>Controls ALTER TABLE behavior</td><td>Schema evolution strategy</td></tr>
+          <tr><td>persist_docs={...}</td><td>COMMENT ON TABLE/COLUMN</td><td>Push descriptions to Snowflake objects</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 03 MACROS ══ -->
+<div id="macros" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 03</div>
+    <div class="sec-title">{% macro %} — Reusable Jinja Functions</div>
+    <div class="sec-desc">Macros are Jinja functions that generate SQL at compile time. Think of them as stored procedures that run before Snowflake ever sees the query.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Basic Macro — cents_to_dollars()</div><span class="badge b-m">MACRO</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ macros/cents_to_dollars.sql</div>
+<pre><span class="jt">{%</span> <span class="kw">macro</span> <span class="jf">cents_to_dollars</span>(column_name, scale=<span class="nm">2</span>) <span class="jt">%}</span>
+    <span class="fn">ROUND</span>(<span class="jt">{{</span> column_name <span class="jt">}}</span> / <span class="nm">100.0</span>, <span class="jt">{{</span> scale <span class="jt">}}</span>)
+<span class="jt">{%</span> <span class="kw">endmacro</span> <span class="jt">%}</span></pre>
+      <div class="code-label l-j">✦ Usage in model</div>
+<pre><span class="kw">SELECT</span>
+    claim_id,
+    <span class="jt">{{</span> <span class="jf">cents_to_dollars</span>(<span class="str">'billed_cents'</span>) <span class="jt">}}</span>        <span class="kw">AS</span> billed_amount,
+    <span class="jt">{{</span> <span class="jf">cents_to_dollars</span>(<span class="str">'paid_cents'</span>, scale=<span class="nm">4</span>) <span class="jt">}}</span>  <span class="kw">AS</span> paid_amount
+<span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'stg_claims'</span>) <span class="jt">}}</span></pre>
+      <div class="arrow-row">compile</div>
+      <div class="code-label l-s">✦ Compiled Snowflake SQL</div>
+<pre><span class="kw">SELECT</span>
+    claim_id,
+    <span class="fn">ROUND</span>(billed_cents / <span class="nm">100.0</span>, <span class="nm">2</span>) <span class="kw">AS</span> billed_amount,
+    <span class="fn">ROUND</span>(paid_cents   / <span class="nm">100.0</span>, <span class="nm">4</span>) <span class="kw">AS</span> paid_amount
+<span class="kw">FROM</span> ANALYTICS_DB.STAGING.STG_CLAIMS</pre>
+    </div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">generate_schema_name() Override — Enterprise Pattern</div><span class="badge b-m">OVERRIDE MACRO</span><span class="badge b-c">CRITICAL</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ macros/generate_schema_name.sql</div>
+<pre><span class="jt">{%</span> <span class="kw">macro</span> <span class="jf">generate_schema_name</span>(custom_schema_name, node) <span class="jt">%}</span>
+    <span class="jt">{%</span> <span class="kw">set</span> default_schema = target.schema <span class="jt">%}</span>
+    <span class="jt">{%</span> <span class="kw">if</span> custom_schema_name <span class="kw">is none</span> <span class="jt">%}</span>
+        <span class="jt">{{</span> default_schema <span class="jt">}}</span>
+    <span class="jt">{%</span> <span class="kw">else</span> <span class="jt">%}</span>
+        <span class="jt">{{</span> custom_schema_name | <span class="jf">trim</span> <span class="jt">}}</span>  <span class="cm">-- exact name, no env prefix</span>
+    <span class="jt">{%</span> <span class="kw">endif</span> <span class="jt">%}</span>
+<span class="jt">{%</span> <span class="kw">endmacro</span> <span class="jt">%}</span></pre>
+      <div class="insight i-why"><div class="i-icon">🧠</div><div class="i-body"><strong>Why override this?</strong> By default dbt prefixes schemas with the target name: <code>config(schema='marts')</code> in prod becomes <code>PROD_MARTS</code>. This override makes dbt use the exact name. Power BI connections to <code>MARTS</code> won't break across environments — critical for enterprise Snowflake.</div></div>
+    </div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">run_query() — Dynamic SQL at Compile Time</div><span class="badge b-m">MACRO</span><span class="badge b-y">COMPILE TIME</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ Usage in model</div>
+<pre><span class="jt">{%</span> <span class="kw">if</span> <span class="jf">execute</span> <span class="jt">%}</span>  <span class="cm">-- guard: prevents firing during parse phase</span>
+  <span class="jt">{%</span> <span class="kw">set</span> results = <span class="jf">run_query</span>(<span class="str">"""
+      SELECT payer_id FROM ANALYTICS_DB.MARTS.DIM_PAYERS
+      WHERE is_active = TRUE ORDER BY 1
+  """</span>) <span class="jt">%}</span>
+  <span class="jt">{%</span> <span class="kw">set</span> payer_ids = results.columns[<span class="nm">0</span>].values() <span class="jt">%}</span>
+<span class="jt">{%</span> <span class="kw">else</span> <span class="jt">%}</span>
+  <span class="jt">{%</span> <span class="kw">set</span> payer_ids = [] <span class="jt">%}</span>
+<span class="jt">{%</span> <span class="kw">endif</span> <span class="jt">%}</span>
+
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'fct_claims'</span>) <span class="jt">}}</span>
+<span class="kw">WHERE</span> payer_id <span class="kw">IN</span> (<span class="jt">{{</span> payer_ids | <span class="jf">join</span>(<span class="str">', '</span>) <span class="jt">}}</span>)</pre>
+      <div class="arrow-row">compile (Snowflake query fires BEFORE model runs)</div>
+      <div class="code-label l-s">✦ Compiled Snowflake SQL</div>
+<pre><span class="kw">SELECT</span> * <span class="kw">FROM</span> ANALYTICS_DB.MARTS.FCT_CLAIMS
+<span class="kw">WHERE</span> payer_id <span class="kw">IN</span> (<span class="nm">101</span>, <span class="nm">204</span>, <span class="nm">317</span>, <span class="nm">482</span>)  <span class="cm">-- fetched live</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 04 CONTROL FLOW ══ -->
+<div id="control" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 04</div>
+    <div class="sec-title">{% if %}, {% for %}, {% set %} — Control Flow</div>
+    <div class="sec-desc">Jinja control structures generate SQL that adapts to its environment — environment-conditional PII masking, loop-generated pivots, dynamic column lists.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">{% if target.name %} — Environment-Conditional SQL (PII masking)</div><span class="badge b-j">JINJA</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ DBT Model</div>
+<pre><span class="kw">SELECT</span>
+    claim_id,
+<span class="jt">{%</span> <span class="kw">if</span> target.name == <span class="str">'prod'</span> <span class="jt">%}</span>
+    ssn,
+    date_of_birth,
+<span class="jt">{%</span> <span class="kw">else</span> <span class="jt">%}</span>
+    <span class="fn">SHA2</span>(ssn)                              <span class="kw">AS</span> ssn,
+    <span class="fn">DATE_TRUNC</span>(<span class="str">'YEAR'</span>, date_of_birth)   <span class="kw">AS</span> date_of_birth,
+<span class="jt">{%</span> <span class="kw">endif</span> <span class="jt">%}</span>
+    billed_amount
+<span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'stg_claims'</span>) <span class="jt">}}</span></pre>
+      <div class="two-col">
+        <div><div class="code-label l-s">✦ Compiled — PROD</div>
+<pre><span class="kw">SELECT</span>
+    claim_id,
+    ssn,
+    date_of_birth,
+    billed_amount
+<span class="kw">FROM</span> ANALYTICS_DB.STAGING.STG_CLAIMS</pre></div>
+        <div><div class="code-label l-s">✦ Compiled — DEV</div>
+<pre><span class="kw">SELECT</span>
+    claim_id,
+    <span class="fn">SHA2</span>(ssn) <span class="kw">AS</span> ssn,
+    <span class="fn">DATE_TRUNC</span>(<span class="str">'YEAR'</span>,date_of_birth)
+        <span class="kw">AS</span> date_of_birth,
+    billed_amount
+<span class="kw">FROM</span> DEV_DB.STAGING.STG_CLAIMS</pre></div>
+      </div>
+    </div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">{% for %} Loop — AR Aging Bucket Pivot</div><span class="badge b-j">JINJA LOOP</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ DBT Model</div>
+<pre><span class="jt">{%</span> <span class="kw">set</span> buckets = [
+    (<span class="str">'0_30'</span>,    <span class="nm">0</span>,   <span class="nm">30</span>),
+    (<span class="str">'31_60'</span>,  <span class="nm">31</span>,   <span class="nm">60</span>),
+    (<span class="str">'61_90'</span>,  <span class="nm">61</span>,   <span class="nm">90</span>),
+    (<span class="str">'91_plus'</span>,<span class="nm">91</span>, <span class="nm">9999</span>)
+] <span class="jt">%}</span>
+
+<span class="kw">SELECT</span>
+    facility_id,
+<span class="jt">{%</span> <span class="kw">for</span> label, lo, hi <span class="kw">in</span> buckets <span class="jt">%}</span>
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> days_out <span class="kw">BETWEEN</span> <span class="jt">{{</span>lo<span class="jt">}}</span> <span class="kw">AND</span> <span class="jt">{{</span>hi<span class="jt">}}</span> <span class="kw">THEN</span> billed_amount <span class="kw">ELSE</span> <span class="nm">0</span> <span class="kw">END</span>)
+        <span class="kw">AS</span> ar_<span class="jt">{{</span>label<span class="jt">}}</span><span class="jt">{%</span> <span class="kw">if not</span> loop.last <span class="jt">%}</span>,<span class="jt">{%</span> <span class="kw">endif</span> <span class="jt">%}</span>
+<span class="jt">{%</span> <span class="kw">endfor</span> <span class="jt">%}</span>
+<span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'fct_claims'</span>) <span class="jt">}}</span> <span class="kw">GROUP BY</span> <span class="nm">1</span></pre>
+      <div class="arrow-row">compile</div>
+      <div class="code-label l-s">✦ Compiled</div>
+<pre><span class="kw">SELECT</span> facility_id,
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> days_out <span class="kw">BETWEEN</span> <span class="nm">0</span>  <span class="kw">AND</span> <span class="nm">30</span>   <span class="kw">THEN</span> billed_amount <span class="kw">ELSE</span> <span class="nm">0</span> <span class="kw">END</span>) <span class="kw">AS</span> ar_0_30,
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> days_out <span class="kw">BETWEEN</span> <span class="nm">31</span> <span class="kw">AND</span> <span class="nm">60</span>   <span class="kw">THEN</span> billed_amount <span class="kw">ELSE</span> <span class="nm">0</span> <span class="kw">END</span>) <span class="kw">AS</span> ar_31_60,
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> days_out <span class="kw">BETWEEN</span> <span class="nm">61</span> <span class="kw">AND</span> <span class="nm">90</span>   <span class="kw">THEN</span> billed_amount <span class="kw">ELSE</span> <span class="nm">0</span> <span class="kw">END</span>) <span class="kw">AS</span> ar_61_90,
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> days_out <span class="kw">BETWEEN</span> <span class="nm">91</span> <span class="kw">AND</span> <span class="nm">9999</span> <span class="kw">THEN</span> billed_amount <span class="kw">ELSE</span> <span class="nm">0</span> <span class="kw">END</span>) <span class="kw">AS</span> ar_91_plus
+<span class="kw">FROM</span> ANALYTICS_DB.MARTS.FCT_CLAIMS <span class="kw">GROUP BY</span> <span class="nm">1</span></pre>
+      <div class="insight i-tip"><div class="i-icon">💡</div><div class="i-body"><strong>loop.last trick:</strong> <code>{% if not loop.last %},{% endif %}</code> prevents trailing commas — the most common Jinja-in-SQL bug. Also available: <code>loop.first</code>, <code>loop.index</code> (1-based), <code>loop.index0</code> (0-based), <code>loop.length</code>.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 05 VARS ══ -->
+<div id="vars" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 05</div>
+    <div class="sec-title">{{ var() }} and {{ env_var() }}</div>
+    <div class="sec-desc">Pass runtime parameters into SQL without hardcoding. vars from dbt_project.yml or --vars CLI. env_vars from OS/secrets manager.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">var() + env_var() — Full Pattern</div><span class="badge b-j">JINJA</span></div>
+    <div class="card-body">
+      <div class="code-label l-y">✦ dbt_project.yml vars</div>
+<pre>vars:
+  start_date:            <span class="str">'2024-01-01'</span>
+  ar_aging_threshold:    <span class="nm">120</span>
+  lookback_days:         <span class="nm">90</span>
+  enable_debug_logging:  <span class="nm">false</span></pre>
+      <div class="code-label l-j">✦ Model using var()</div>
+<pre><span class="kw">SELECT</span> *
+<span class="kw">FROM</span>   <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'fct_claims'</span>) <span class="jt">}}</span>
+<span class="kw">WHERE</span>  claim_date >= <span class="str">'</span><span class="jt">{{</span> <span class="jf">var</span>(<span class="str">'start_date'</span>) <span class="jt">}}</span><span class="str">'</span>
+  <span class="kw">AND</span>  days_outstanding > <span class="jt">{{</span> <span class="jf">var</span>(<span class="str">'ar_aging_threshold'</span>) <span class="jt">}}</span>
+<span class="cm">-- CLI override:  dbt run --vars '{"start_date":"2025-06-01","ar_aging_threshold":90}'</span></pre>
+      <div class="code-label l-j">✦ profiles.yml using env_var()</div>
+<pre>prod:
+  outputs:
+    prod:
+      type: snowflake
+      account:   <span class="jt">{{</span> <span class="jf">env_var</span>(<span class="str">'SNOWFLAKE_ACCOUNT'</span>) <span class="jt">}}</span>
+      user:      <span class="jt">{{</span> <span class="jf">env_var</span>(<span class="str">'SNOWFLAKE_USER'</span>) <span class="jt">}}</span>
+      password:  <span class="jt">{{</span> <span class="jf">env_var</span>(<span class="str">'SNOWFLAKE_PASSWORD'</span>) <span class="jt">}}</span>
+      warehouse: <span class="jt">{{</span> <span class="jf">env_var</span>(<span class="str">'SNOWFLAKE_WH'</span>, <span class="str">'COMPUTE_WH'</span>) <span class="jt">}}</span>  <span class="cm">-- default</span>
+      role:      <span class="jt">{{</span> <span class="jf">env_var</span>(<span class="str">'SNOWFLAKE_ROLE'</span>, <span class="str">'TRANSFORMER'</span>) <span class="jt">}}</span>
+      database:  ANALYTICS_DB
+      schema:    ANALYTICS</pre>
+      <div class="insight i-warn"><div class="i-icon">⚠️</div><div class="i-body"><strong>env_var() second arg = default.</strong> Never provide a default for passwords/secrets — let them fail loudly when missing. Always provide defaults for non-sensitive config like warehouse size.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 06 INCREMENTAL ══ -->
+<div id="incremental" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 06</div>
+    <div class="sec-title">Incremental Models — is_incremental() + {{ this }}</div>
+    <div class="sec-desc">The most critical materialization for production Snowflake pipelines. Only processes new/changed rows. Full-refresh on first run, MERGE/INSERT on subsequent runs.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Incremental — MERGE strategy (upsert)</div><span class="badge b-j">JINJA</span><span class="badge b-s">MERGE INTO</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ DBT Model</div>
+<pre><span class="jt">{{</span> <span class="jf">config</span>(
+    materialized         = <span class="str">'incremental'</span>,
+    unique_key           = <span class="str">'claim_id'</span>,
+    incremental_strategy = <span class="str">'merge'</span>,
+    cluster_by           = [<span class="str">'claim_date'</span>],
+    on_schema_change     = <span class="str">'append_new_columns'</span>
+) <span class="jt">}}</span>
+
+<span class="kw">SELECT</span>
+    claim_id, patient_id, payer_id,
+    billed_amount, claim_status, updated_at
+<span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">source</span>(<span class="str">'credible'</span>, <span class="str">'claims'</span>) <span class="jt">}}</span>
+
+<span class="jt">{%</span> <span class="kw">if</span> <span class="jf">is_incremental</span>() <span class="jt">%}</span>
+<span class="kw">WHERE</span> updated_at > (
+    <span class="kw">SELECT</span> <span class="fn">MAX</span>(updated_at) <span class="kw">FROM</span> <span class="jt">{{</span> this <span class="jt">}}</span>   <span class="cm">-- {{ this }} = self-reference</span>
+)
+<span class="jt">{%</span> <span class="kw">endif</span> <span class="jt">%}</span></pre>
+      <div class="two-col">
+        <div><div class="code-label l-s">✦ First Run → CREATE TABLE</div>
+<pre><span class="kw">CREATE OR REPLACE</span> <span class="fn">TRANSIENT TABLE</span>
+    ANALYTICS_DB.MARTS.FCT_CLAIMS
+<span class="kw">AS</span> (
+  <span class="kw">SELECT</span> claim_id, ...
+  <span class="kw">FROM</span> RAW_DB.CREDIBLE_ALPHA.CLAIMS
+  <span class="cm">-- no WHERE clause (is_incremental=false)</span>
+)</pre></div>
+        <div><div class="code-label l-s">✦ Subsequent → MERGE INTO</div>
+<pre><span class="kw">MERGE INTO</span> ANALYTICS_DB.MARTS.FCT_CLAIMS
+<span class="kw">USING</span> (
+  <span class="kw">SELECT</span> ...
+  <span class="kw">FROM</span> RAW_DB.CREDIBLE_ALPHA.CLAIMS
+  <span class="kw">WHERE</span> updated_at > (
+    <span class="kw">SELECT</span> <span class="fn">MAX</span>(updated_at)
+    <span class="kw">FROM</span> ANALYTICS_DB.MARTS.FCT_CLAIMS
+  )
+) <span class="kw">AS</span> src
+<span class="kw">ON</span> dest.claim_id = src.claim_id
+<span class="kw">WHEN MATCHED THEN UPDATE SET</span> ...
+<span class="kw">WHEN NOT MATCHED THEN INSERT</span> ...</pre></div>
+      </div>
+      <div class="insight i-why"><div class="i-icon">🧠</div><div class="i-body"><strong>{{ this }}</strong> resolves to the current model's fully qualified Snowflake name. In the WHERE clause it means "give me rows newer than the latest row already in myself." Self-referential, environment-aware, and works across dev/prod automatically.</div></div>
+      <h3 class="sub">Snowflake Incremental Strategies</h3>
+      <table class="cmp-table">
+        <thead><tr><th>Strategy</th><th>Snowflake SQL</th><th>Best For</th><th>Deletes?</th></tr></thead>
+        <tbody>
+          <tr><td><code>merge</code></td><td>MERGE INTO</td><td>Claims upsert by claim_id</td><td class="yes">✓ WHEN MATCHED</td></tr>
+          <tr><td><code>delete+insert</code></td><td>DELETE WHERE + INSERT</td><td>Daily date partitions</td><td class="yes">✓ partition-level</td></tr>
+          <tr><td><code>append</code></td><td>INSERT INTO (no dedup)</td><td>Immutable event logs</td><td class="no">✗</td></tr>
+          <tr><td><code>microbatch</code></td><td>Batched MERGE by event_time</td><td>Near-real-time high-volume</td><td class="yes">✓ per batch</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 07 SNAPSHOTS ══ -->
+<div id="snapshots" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 07</div>
+    <div class="sec-title">Snapshots — Automatic SCD Type 2</div>
+    <div class="sec-desc">Snapshots implement Slowly Changing Dimensions Type 2 without writing a single MERGE. dbt tracks row changes and adds dbt_valid_from / dbt_valid_to columns automatically.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Snapshot — Payer SCD2</div><span class="badge b-j">SNAPSHOT CONFIG</span><span class="badge b-s">SCD2 MERGE</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ snapshots/snp_dim_payers.sql</div>
+<pre><span class="jt">{%</span> <span class="kw">snapshot</span> snp_dim_payers <span class="jt">%}</span>
+<span class="jt">{{</span> <span class="jf">config</span>(
+    target_schema           = <span class="str">'snapshots'</span>,
+    unique_key              = <span class="str">'payer_id'</span>,
+    strategy                = <span class="str">'timestamp'</span>,  <span class="cm">-- or 'check'</span>
+    updated_at              = <span class="str">'updated_at'</span>,
+    invalidate_hard_deletes = <span class="nm">true</span>
+) <span class="jt">}}</span>
+
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">source</span>(<span class="str">'credible'</span>, <span class="str">'payers'</span>) <span class="jt">}}</span>
+<span class="jt">{%</span> <span class="kw">endsnapshot</span> <span class="jt">%}</span></pre>
+      <div class="code-label l-s">✦ Resulting Snowflake table structure</div>
+<pre><span class="cm">-- ANALYTICS_DB.SNAPSHOTS.SNP_DIM_PAYERS</span>
+PAYER_ID           VARCHAR        <span class="cm">-- natural key</span>
+PAYER_NAME         VARCHAR
+CONTRACT_RATE      NUMBER
+<span class="fn">DBT_SCD_ID</span>        VARCHAR        <span class="cm">-- hash of row (auto)</span>
+<span class="fn">DBT_UPDATED_AT</span>    TIMESTAMP_NTZ  <span class="cm">-- last seen timestamp</span>
+<span class="fn">DBT_VALID_FROM</span>    TIMESTAMP_NTZ  <span class="cm">-- when this version became active</span>
+<span class="fn">DBT_VALID_TO</span>      TIMESTAMP_NTZ  <span class="cm">-- NULL=current, timestamp=expired</span>
+
+<span class="cm">-- Current records:</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> ANALYTICS_DB.SNAPSHOTS.SNP_DIM_PAYERS
+<span class="kw">WHERE</span> DBT_VALID_TO <span class="kw">IS NULL</span>;
+
+<span class="cm">-- Point-in-time (as of 2024-06-01):</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> ANALYTICS_DB.SNAPSHOTS.SNP_DIM_PAYERS
+<span class="kw">WHERE</span> DBT_VALID_FROM &lt;= <span class="str">'2024-06-01'</span>
+  <span class="kw">AND</span> (DBT_VALID_TO > <span class="str">'2024-06-01'</span> <span class="kw">OR</span> DBT_VALID_TO <span class="kw">IS NULL</span>);</pre>
+      <div class="insight i-snow"><div class="i-icon">❄️</div><div class="i-body"><strong>invalidate_hard_deletes=true:</strong> When a payer row disappears from source, dbt closes it by setting dbt_valid_to. Without this, deleted payers stay forever as "current." Essential for healthcare payer/facility dims where contracts expire.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 08 DYNAMIC TABLES ★ ══ -->
+<div id="dynamic" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 08 — NEW</div>
+    <div class="sec-title">Dynamic Tables <span class="new-badge">Snowflake Native</span></div>
+    <div class="sec-desc">Snowflake Dynamic Tables are a native Snowflake feature — they continuously refresh themselves from upstream tables. dbt-snowflake exposes them as a first-class materialization. No scheduler needed.</div>
+  </div>
+
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Dynamic Table Materialization — Near-Real-Time Mart</div><span class="badge b-n">DYNAMIC TABLE</span><span class="badge b-s">CREATE DYNAMIC TABLE</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ DBT Model (Jinja)</div>
+<pre><span class="jt">{{</span> <span class="jf">config</span>(
+    materialized        = <span class="str">'dynamic_table'</span>,
+    snowflake_warehouse = <span class="str">'COMPUTE_WH'</span>,
+    target_lag          = <span class="str">'1 minute'</span>,       <span class="cm">-- freshness SLA</span>
+    refresh_mode        = <span class="str">'AUTO'</span>,           <span class="cm">-- AUTO | FULL | INCREMENTAL</span>
+    initialize          = <span class="str">'ON_CREATE'</span>,      <span class="cm">-- ON_CREATE | ON_SCHEDULE</span>
+    on_configuration_change = <span class="str">'apply'</span>       <span class="cm">-- apply | continue | fail</span>
+) <span class="jt">}}</span>
+
+<span class="kw">SELECT</span>
+    c.claim_id,
+    c.payer_id,
+    p.payer_name,
+    c.billed_amount,
+    c.claim_status,
+    c.updated_at
+<span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">source</span>(<span class="str">'credible'</span>, <span class="str">'claims'</span>) <span class="jt">}}</span> c
+<span class="kw">JOIN</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'dim_payers'</span>) <span class="jt">}}</span> p
+  <span class="kw">ON</span> c.payer_id = p.payer_id</pre>
+
+      <div class="arrow-row">dbt run → Snowflake DDL</div>
+
+      <div class="code-label l-s">✦ Compiled Snowflake DDL</div>
+<pre><span class="kw">CREATE</span> <span class="fn">OR REPLACE DYNAMIC TABLE</span>
+    ANALYTICS_DB.MARTS.FCT_CLAIMS_LIVE
+<span class="fn">TARGET_LAG</span> = <span class="str">'1 minute'</span>
+<span class="fn">WAREHOUSE</span> = COMPUTE_WH
+<span class="fn">REFRESH_MODE</span> = AUTO
+<span class="fn">INITIALIZE</span> = ON_CREATE
+<span class="kw">AS</span>
+<span class="kw">SELECT</span>
+    c.claim_id, c.payer_id, p.payer_name,
+    c.billed_amount, c.claim_status, c.updated_at
+<span class="kw">FROM</span> RAW_DB.CREDIBLE_ALPHA.CLAIMS c
+<span class="kw">JOIN</span> ANALYTICS_DB.MARTS.DIM_PAYERS p
+  <span class="kw">ON</span> c.payer_id = p.payer_id;</pre>
+
+      <div class="insight i-why"><div class="i-icon">🧠</div><div class="i-body"><strong>Dynamic Table vs Incremental — when to choose which?</strong><br>
+      <strong>Dynamic Table:</strong> Snowflake manages the refresh schedule automatically. No dbt run needed after initial deployment — the table self-refreshes. Use when you need near-real-time data (minutes lag) without building a streaming pipeline. Snowflake handles the incremental logic internally.<br>
+      <strong>Incremental model:</strong> You control refresh via dbt run cadence (triggered by ADF/Airflow/dbt Cloud). Use when you need custom merge logic, complex transformations, or audit hooks around the refresh.</div></div>
+
+      <div class="insight i-snow"><div class="i-icon">❄️</div><div class="i-body"><strong>target_lag values:</strong> <code>'1 minute'</code>, <code>'5 minutes'</code>, <code>'1 hour'</code>, <code>'DOWNSTREAM'</code> (refresh when a downstream DT needs it — most cost-efficient). <code>refresh_mode='AUTO'</code> lets Snowflake decide between incremental and full refresh based on the query. Use <code>FULL</code> to force always-full, <code>INCREMENTAL</code> to force incremental (errors if not supported).</div></div>
+
+      <div class="insight i-new"><div class="i-icon">⚡</div><div class="i-body"><strong>on_configuration_change:</strong> Controls what dbt does if the Dynamic Table DDL has changed. <code>apply</code> = recreate it (downtime). <code>continue</code> = log warning, keep old version. <code>fail</code> = block the run. Use <code>fail</code> in CI to catch accidental DT definition changes.</div></div>
+
+      <h3 class="sub">Dynamic Table vs Other Materializations</h3>
+      <table class="cmp-table">
+        <thead><tr><th>Property</th><th>Dynamic Table</th><th>Incremental</th><th>View</th><th>Table</th></tr></thead>
+        <tbody>
+          <tr><td>Snowflake object</td><td>DYNAMIC TABLE</td><td>TABLE</td><td>VIEW</td><td>TABLE</td></tr>
+          <tr><td>Auto-refreshes?</td><td class="yes">✓ Yes (Snowflake-driven)</td><td class="no">✗ dbt run needed</td><td class="yes">✓ Always live</td><td class="no">✗ dbt run needed</td></tr>
+          <tr><td>Lag control</td><td class="yes">✓ target_lag config</td><td class="na">Run cadence</td><td class="na">None (always live)</td><td class="na">Run cadence</td></tr>
+          <tr><td>Complex merge logic</td><td class="no">✗ SQL only</td><td class="yes">✓ Full Jinja control</td><td class="no">✗</td><td class="no">✗</td></tr>
+          <tr><td>Hooks supported?</td><td class="no">✗ Not on auto-refresh</td><td class="yes">✓ Full pre/post hooks</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Cost model</td><td class="na">Compute per refresh</td><td class="na">Compute per dbt run</td><td class="na">Compute per query</td><td class="na">Compute per dbt run</td></tr>
+          <tr><td>Good for streaming</td><td class="yes">✓ Best option</td><td class="na">Depends on cadence</td><td class="no">✗ No storage</td><td class="no">✗ Full rebuild</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 09 PYTHON MODELS ★ ══ -->
+<div id="python" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 09 — NEW</div>
+    <div class="sec-title">Python Models (Snowpark) <span class="new-badge">dbt 1.3+</span></div>
+    <div class="sec-desc">Python models run on Snowpark — Snowflake's Python execution engine. Use them for ML feature engineering, complex transformations impossible in SQL, or pandas/sklearn integration.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Python Model — ML Feature Engineering on Snowpark</div><span class="badge b-p">PYTHON</span><span class="badge b-n">SNOWPARK</span></div>
+    <div class="card-body">
+      <div class="code-label l-p">✦ models/ml/features_claims_risk.py</div>
+<pre><span class="cm"># Python models use a standard model(dbt, session) signature</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="jt">def</span> <span class="jf">model</span>(dbt, session):
+
+    <span class="cm"># Configure — same keys as config() in SQL models</span>
+    dbt.config(
+        materialized    = <span class="str">"table"</span>,
+        packages        = [<span class="str">"pandas"</span>, <span class="str">"scikit-learn"</span>],
+        snowflake_warehouse = <span class="str">"ML_WH"</span>
+    )
+
+    <span class="cm"># ref() works identically — returns a Snowpark DataFrame</span>
+    claims_df  = dbt.ref(<span class="str">"fct_claims"</span>)
+    payers_df  = dbt.ref(<span class="str">"dim_payers"</span>)
+
+    <span class="cm"># Convert to pandas for sklearn feature engineering</span>
+    claims_pd  = claims_df.to_pandas()
+    payers_pd  = payers_df.to_pandas()
+
+    merged = claims_pd.merge(payers_pd, on=<span class="str">"payer_id"</span>)
+
+    <span class="cm"># Feature engineering</span>
+    merged[<span class="str">"days_since_service"</span>] = (
+        pd.Timestamp.now() - pd.to_datetime(merged[<span class="str">"service_date"</span>])
+    ).dt.days
+
+    merged[<span class="str">"denial_risk_flag"</span>] = (
+        (merged[<span class="str">"days_outstanding"</span>] > <span class="nm">90</span>) &
+        (merged[<span class="str">"payer_tier"</span>] == <span class="str">"COMMERCIAL"</span>)
+    ).astype(<span class="nm">int</span>)
+
+    <span class="cm"># Return: Snowpark DF or pandas DF (both accepted)</span>
+    <span class="kw">return</span> merged[[
+        <span class="str">"claim_id"</span>, <span class="str">"days_since_service"</span>,
+        <span class="str">"denial_risk_flag"</span>, <span class="str">"payer_tier"</span>
+    ]]</pre>
+
+      <div class="code-label l-s">✦ What Snowflake executes</div>
+<pre><span class="cm">-- dbt creates a stored procedure and calls it:</span>
+<span class="kw">CREATE OR REPLACE</span> <span class="fn">PROCEDURE</span>
+    ANALYTICS_DB.ML.DBT_PYTHON_FEATURES_CLAIMS_RISK()
+<span class="fn">RETURNS TABLE</span>()
+<span class="fn">LANGUAGE PYTHON</span>
+<span class="fn">RUNTIME_VERSION</span> = <span class="str">'3.9'</span>
+<span class="fn">PACKAGES</span> = (<span class="str">'snowflake-snowpark-python'</span>, <span class="str">'pandas'</span>, <span class="str">'scikit-learn'</span>)
+<span class="fn">HANDLER</span> = <span class="str">'compute'</span>
+<span class="kw">AS</span> <span class="str">'...(your python code)...'</span>;
+
+<span class="cm">-- Then materializes into a table:</span>
+<span class="kw">CREATE OR REPLACE TABLE</span>
+    ANALYTICS_DB.ML.FEATURES_CLAIMS_RISK
+<span class="kw">AS</span> <span class="fn">CALL</span> DBT_PYTHON_FEATURES_CLAIMS_RISK();</pre>
+
+      <div class="insight i-why"><div class="i-icon">🧠</div><div class="i-body"><strong>When to use Python models over SQL models:</strong> (1) ML feature engineering requiring pandas/sklearn transforms. (2) Complex string parsing (regex, NLP) not possible in SQL. (3) External API calls at transformation time. (4) Statistical operations (z-scores, rolling windows beyond SQL's OVER). For everything else, SQL is faster and cheaper on Snowflake.</div></div>
+      <div class="insight i-snow"><div class="i-icon">❄️</div><div class="i-body"><strong>Snowpark constraints:</strong> Python model runs in Snowflake's Python sandbox — no internet access, no file system writes. Packages must be on Snowflake's Anaconda channel or uploaded as stages. Always specify <code>snowflake_warehouse</code> — Python models need a warehouse (unlike some SQL views).</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 10 CONTRACTS & GRANTS ★ ══ -->
+<div id="contracts" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 10 — NEW</div>
+    <div class="sec-title">Contracts, Column Constraints &amp; Grants <span class="new-badge">dbt 1.5+</span></div>
+    <div class="sec-desc">Model contracts enforce data types and column existence. Grants declaratively manage Snowflake RBAC. Together they replace fragile post_hook GRANT statements.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Model Contracts — Enforced Schema</div><span class="badge b-c">CONTRACT</span><span class="badge b-s">DDL CONSTRAINTS</span></div>
+    <div class="card-body">
+      <div class="code-label l-y">✦ models/schema.yml (contract definition)</div>
+<pre>models:
+  - name: fct_claims
+    config:
+      contract:
+        enforced: true       <span class="cm"># dbt validates columns at compile time</span>
+    columns:
+      - name: claim_id
+        data_type: varchar
+        constraints:
+          - type: not_null
+          - type: unique
+        description: "Primary key — unique claim identifier"
+      - name: billed_amount
+        data_type: number
+        constraints:
+          - type: not_null
+        description: "Total billed amount in USD"
+      - name: payer_id
+        data_type: varchar
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('dim_payers')
+            to_columns: [payer_id]
+      - name: claim_date
+        data_type: date
+        constraints:
+          - type: not_null</pre>
+
+      <div class="code-label l-s">✦ Snowflake DDL with constraints</div>
+<pre><span class="kw">CREATE OR REPLACE TABLE</span> ANALYTICS_DB.MARTS.FCT_CLAIMS (
+    claim_id       <span class="fn">VARCHAR NOT NULL</span>,
+    billed_amount  <span class="fn">NUMBER  NOT NULL</span>,
+    payer_id       <span class="fn">VARCHAR NOT NULL</span>,
+    claim_date     <span class="fn">DATE    NOT NULL</span>
+)
+<span class="kw">AS</span> ( &lt;your SELECT&gt; );</pre>
+
+      <div class="insight i-why"><div class="i-icon">🧠</div><div class="i-body"><strong>Why contracts?</strong> Without a contract, dbt will run even if your SELECT accidentally drops a column or changes a data type — downstream consumers break silently. With <code>enforced: true</code>, dbt compares your SELECT output to the declared schema at compile time and fails before anything touches Snowflake. This is the dbt equivalent of a strongly-typed interface.</div></div>
+    </div>
+  </div>
+
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Declarative Grants — Snowflake RBAC via dbt</div><span class="badge b-n">GRANTS</span><span class="badge b-s">GRANT SQL</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ config() block — model-level grants</div>
+<pre><span class="jt">{{</span> <span class="jf">config</span>(
+    grants = {
+        <span class="str">'select'</span>: [<span class="str">'REPORTER'</span>, <span class="str">'ANALYST'</span>],
+        <span class="str">'references'</span>: [<span class="str">'DEVELOPER'</span>]
+    }
+) <span class="jt">}}</span></pre>
+
+      <div class="code-label l-y">✦ OR — dbt_project.yml global grants</div>
+<pre>models:
+  my_project:
+    marts:
+      +grants:
+        select: ['REPORTER', 'ANALYST']
+    marts/finance:
+      +grants:
+        select: ['REPORTER', 'FINANCE_ANALYST']</pre>
+
+      <div class="arrow-row">dbt run → Snowflake GRANT statements</div>
+
+      <div class="code-label l-s">✦ Compiled Snowflake SQL</div>
+<pre><span class="cm">-- Executed after table is created:</span>
+<span class="kw">GRANT SELECT ON</span> ANALYTICS_DB.MARTS.FCT_CLAIMS <span class="kw">TO ROLE</span> REPORTER;
+<span class="kw">GRANT SELECT ON</span> ANALYTICS_DB.MARTS.FCT_CLAIMS <span class="kw">TO ROLE</span> ANALYST;
+<span class="kw">GRANT REFERENCES ON</span> ANALYTICS_DB.MARTS.FCT_CLAIMS <span class="kw">TO ROLE</span> DEVELOPER;</pre>
+
+      <div class="insight i-why"><div class="i-icon">🧠</div><div class="i-body"><strong>Declarative grants vs post_hook grants:</strong> With <code>copy_grants=true</code> + declarative grants, dbt becomes the source of truth for all Snowflake RBAC on dbt-owned objects. No more scripts outside dbt. Grant state is version-controlled in your repo. During table rebuild, dbt re-applies grants automatically — no manual grant reassignment.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 11 SEEDS & SOURCES ══ -->
+<div id="seeds" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 11</div>
+    <div class="sec-title">Seeds — CSV → Snowflake Table</div>
+    <div class="sec-desc">Seeds are CSV files in your dbt project that get loaded into Snowflake as tables. Perfect for static lookup data — payer codes, facility mappings, ICD code descriptions.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">dbt seed — CSV to Snowflake via dbt</div><span class="badge b-y">SEEDS</span><span class="badge b-s">CREATE TABLE + INSERT</span></div>
+    <div class="card-body">
+      <div class="code-label l-y">✦ seeds/payer_codes.csv</div>
+<pre>payer_code,payer_name,payer_tier,is_active
+BCBS_TX,Blue Cross Blue Shield TX,COMMERCIAL,true
+MDCR,Medicare,GOVERNMENT,true
+MDCD,Medicaid,GOVERNMENT,true
+UHC,United Healthcare,COMMERCIAL,true</pre>
+
+      <div class="code-label l-y">✦ dbt_project.yml — seed config</div>
+<pre>seeds:
+  my_project:
+    payer_codes:
+      +schema: seeds
+      +column_types:
+        payer_code:  varchar(20)
+        payer_name:  varchar(100)
+        payer_tier:  varchar(30)
+        is_active:   boolean
+      +quote_columns: false</pre>
+
+      <div class="code-label l-j">✦ Referencing a seed in a model</div>
+<pre><span class="kw">SELECT</span>
+    c.claim_id,
+    s.payer_name,
+    s.payer_tier
+<span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'fct_claims'</span>) <span class="jt">}}</span> c
+<span class="kw">JOIN</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'payer_codes'</span>) <span class="jt">}}</span> s   <span class="cm">-- seed referenced same as a model</span>
+  <span class="kw">ON</span> c.payer_code = s.payer_code</pre>
+
+      <div class="code-label l-s">✦ dbt seed → Snowflake DDL</div>
+<pre><span class="kw">CREATE OR REPLACE TABLE</span> ANALYTICS_DB.SEEDS.PAYER_CODES (
+    PAYER_CODE  VARCHAR(<span class="nm">20</span>),
+    PAYER_NAME  VARCHAR(<span class="nm">100</span>),
+    PAYER_TIER  VARCHAR(<span class="nm">30</span>),
+    IS_ACTIVE   BOOLEAN
+);
+<span class="kw">INSERT INTO</span> ANALYTICS_DB.SEEDS.PAYER_CODES VALUES
+    (<span class="str">'BCBS_TX'</span>, <span class="str">'Blue Cross Blue Shield TX'</span>, <span class="str">'COMMERCIAL'</span>, <span class="nm">true</span>),
+    (<span class="str">'MDCR'</span>,   <span class="str">'Medicare'</span>,                  <span class="str">'GOVERNMENT'</span>, <span class="nm">true</span>),
+    ...</pre>
+
+      <div class="insight i-tip"><div class="i-icon">💡</div><div class="i-body"><strong>Seeds vs source():</strong> Seeds are for static, rarely-changing reference data you own (ICD codes, payer tiers, facility lists). source() is for tables loaded by external pipelines. Seeds are version-controlled in git — their change history is visible in PRs.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 12 TESTS ══ -->
+<div id="tests" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 12</div>
+    <div class="sec-title">Tests — YAML → Snowflake SELECT queries</div>
+    <div class="sec-desc">Every dbt test compiles to a Snowflake SELECT. A test fails if the query returns any rows. The rule is simple, the coverage is complete.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Built-in Tests → Compiled Snowflake SQL</div><span class="badge b-y">YAML → SQL</span></div>
+    <div class="card-body">
+      <div class="code-label l-y">✦ schema.yml</div>
+<pre>models:
+  - name: fct_claims
+    columns:
+      - name: claim_id
+        tests: [not_null, unique]
+      - name: payer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_payers')
+              field: payer_id
+      - name: claim_status
+        tests:
+          - accepted_values:
+              values: ['PENDING','PAID','DENIED','VOIDED']
+              severity: warn        <span class="cm"># warn, not fail</span>
+      - name: billed_amount
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "> 0"</pre>
+
+      <div class="code-label l-s">✦ not_null → compiled</div>
+<pre><span class="kw">SELECT</span> claim_id <span class="kw">FROM</span> ANALYTICS_DB.MARTS.FCT_CLAIMS
+<span class="kw">WHERE</span> claim_id <span class="kw">IS NULL</span></pre>
+
+      <div class="code-label l-s">✦ unique → compiled</div>
+<pre><span class="kw">SELECT</span> claim_id, <span class="fn">COUNT</span>(*) n
+<span class="kw">FROM</span> ANALYTICS_DB.MARTS.FCT_CLAIMS
+<span class="kw">WHERE</span> claim_id <span class="kw">IS NOT NULL</span>
+<span class="kw">GROUP BY</span> claim_id <span class="kw">HAVING</span> n > <span class="nm">1</span></pre>
+
+      <div class="code-label l-s">✦ relationships → compiled</div>
+<pre><span class="kw">SELECT</span> c.payer_id
+<span class="kw">FROM</span> ANALYTICS_DB.MARTS.FCT_CLAIMS c
+<span class="kw">LEFT JOIN</span> ANALYTICS_DB.MARTS.DIM_PAYERS p <span class="kw">ON</span> c.payer_id = p.payer_id
+<span class="kw">WHERE</span> c.payer_id <span class="kw">IS NOT NULL</span>
+  <span class="kw">AND</span> p.payer_id <span class="kw">IS NULL</span></pre>
+
+      <div class="code-label l-s">✦ accepted_values → compiled</div>
+<pre><span class="kw">SELECT</span> claim_status
+<span class="kw">FROM</span> ANALYTICS_DB.MARTS.FCT_CLAIMS
+<span class="kw">WHERE</span> claim_status <span class="kw">NOT IN</span> (<span class="str">'PENDING'</span>,<span class="str">'PAID'</span>,<span class="str">'DENIED'</span>,<span class="str">'VOIDED'</span>)
+  <span class="kw">AND</span> claim_status <span class="kw">IS NOT NULL</span></pre>
+    </div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Custom Generic Test + Singular Test</div><span class="badge b-m">MACRO TEST</span></div>
+    <div class="card-body">
+      <div class="code-label l-j">✦ tests/generic/test_not_negative.sql</div>
+<pre><span class="jt">{%</span> <span class="kw">test</span> <span class="jf">not_negative</span>(model, column_name) <span class="jt">%}</span>
+<span class="kw">SELECT</span> <span class="jt">{{</span> column_name <span class="jt">}}</span>
+<span class="kw">FROM</span> <span class="jt">{{</span> model <span class="jt">}}</span>
+<span class="kw">WHERE</span> <span class="jt">{{</span> column_name <span class="jt">}}</span> &lt; <span class="nm">0</span>
+<span class="jt">{%</span> <span class="kw">endtest</span> <span class="jt">%}</span></pre>
+
+      <div class="code-label l-j">✦ tests/assert_no_orphan_claims.sql (singular test)</div>
+<pre><span class="cm">-- Singular tests: raw SQL files in tests/ folder</span>
+<span class="cm">-- Fail if any rows returned</span>
+<span class="kw">SELECT</span> c.claim_id
+<span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'fct_claims'</span>) <span class="jt">}}</span> c
+<span class="kw">LEFT JOIN</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'dim_patients'</span>) <span class="jt">}}</span> p
+  <span class="kw">ON</span> c.patient_id = p.patient_id
+<span class="kw">WHERE</span> p.patient_id <span class="kw">IS NULL</span>
+  <span class="kw">AND</span> c.claim_date >= <span class="str">'2024-01-01'</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 13 HOOKS & PROJECT ══ -->
+<div id="hooks" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 13</div>
+    <div class="sec-title">Hooks, Tags, on-run-start/end &amp; dbt_project.yml</div>
+    <div class="sec-desc">Hooks fire Snowflake SQL around model execution. on-run-start/end fire at the job level. Tags enable selective model runs. dbt_project.yml is the master config.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">on-run-start / on-run-end — Job-level Hooks</div><span class="badge b-c">HOOKS</span></div>
+    <div class="card-body">
+      <div class="code-label l-y">✦ dbt_project.yml — global hooks + query tags</div>
+<pre>name: 'rcm_analytics'
+version: '1.0.0'
+profile: 'snowflake_prod'
+
+on-run-start:
+  - "ALTER SESSION SET QUERY_TAG = 'dbt_job_{{ run_started_at }}'"
+  - "ALTER WAREHOUSE {{ target.warehouse }} SET WAREHOUSE_SIZE = 'LARGE'"
+  - "CALL ANALYTICS_DB.UTILS.LOG_RUN_START('{{ invocation_id }}')"
+
+on-run-end:
+  - "ALTER WAREHOUSE {{ target.warehouse }} SET WAREHOUSE_SIZE = 'XSMALL'"
+  - "CALL ANALYTICS_DB.UTILS.LOG_RUN_END('{{ invocation_id }}')"
+  - "{% if results | selectattr('status','==','error') | list | length > 0 %}
+       CALL ANALYTICS_DB.UTILS.ALERT_ON_FAILURE('{{ invocation_id }}')
+     {% endif %}"
+
+query-comment:
+  comment: "dbt model={{ node.unique_id }} run={{ invocation_id }}"
+  append: true    <span class="cm"># appends comment to every query for Query History</span></pre>
+
+      <div class="code-label l-s">✦ Snowflake execution order per run</div>
+<pre><span class="cm">-- Job starts</span>
+<span class="fn">ALTER SESSION SET</span> QUERY_TAG = <span class="str">'dbt_job_2025-04-17T08:00:00'</span>;
+<span class="fn">ALTER WAREHOUSE</span> COMPUTE_WH <span class="kw">SET</span> WAREHOUSE_SIZE = <span class="str">'LARGE'</span>;
+<span class="kw">CALL</span> ANALYTICS_DB.UTILS.LOG_RUN_START(<span class="str">'abc-123-uuid'</span>);
+
+<span class="cm">-- ... all models run ...</span>
+
+<span class="cm">-- Job ends</span>
+<span class="fn">ALTER WAREHOUSE</span> COMPUTE_WH <span class="kw">SET</span> WAREHOUSE_SIZE = <span class="str">'XSMALL'</span>;
+<span class="kw">CALL</span> ANALYTICS_DB.UTILS.LOG_RUN_END(<span class="str">'abc-123-uuid'</span>);</pre>
+
+      <div class="insight i-snow"><div class="i-icon">❄️</div><div class="i-body"><strong>query-comment pattern:</strong> Appending node.unique_id to every SQL query means every Snowflake Query History row is traceable back to the exact dbt model that caused it. Essential for cost attribution in multi-tenant Snowflake environments.</div></div>
+    </div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Node Selector Syntax — --select and --exclude</div><span class="badge b-c">CLI SELECTORS</span></div>
+    <div class="card-body">
+      <table class="ref-table">
+        <thead><tr><th>Selector</th><th>What it Selects</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>model_name</td><td>Exact model</td><td>dbt run --select fct_claims</td></tr>
+          <tr><td>+model_name</td><td>Model + all ancestors</td><td>dbt run --select +fct_claims</td></tr>
+          <tr><td>model_name+</td><td>Model + all descendants</td><td>dbt run --select fct_claims+</td></tr>
+          <tr><td>+model_name+</td><td>Full lineage subgraph</td><td>dbt run --select +fct_claims+</td></tr>
+          <tr><td>@model_name</td><td>Model + ancestors + exposures</td><td>dbt run --select @fct_claims</td></tr>
+          <tr><td>tag:name</td><td>All models with tag</td><td>dbt run --select tag:daily</td></tr>
+          <tr><td>source:name</td><td>All models from source</td><td>dbt run --select source:credible+</td></tr>
+          <tr><td>path:folder/</td><td>All models in folder</td><td>dbt run --select models/marts/</td></tr>
+          <tr><td>config.materialized:x</td><td>By materialization</td><td>dbt run --select config.materialized:incremental</td></tr>
+          <tr><td>result:error</td><td>Failed models from last run</td><td>dbt run --select result:error</td></tr>
+          <tr><td>state:modified</td><td>Changed since last run (slim CI)</td><td>dbt run --select state:modified+</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 14 VERSIONING ★ ══ -->
+<div id="versioning" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 14 — NEW</div>
+    <div class="sec-title">Model Versioning <span class="new-badge">dbt 1.5+</span></div>
+    <div class="sec-desc">Model versioning lets you ship breaking schema changes without breaking downstream consumers. Multiple versions of the same model coexist in Snowflake simultaneously.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Model Versioning — v1 and v2 coexisting in Snowflake</div><span class="badge b-n">VERSIONING</span><span class="badge b-s">TWO TABLES</span></div>
+    <div class="card-body">
+      <div class="code-label l-y">✦ schema.yml — declare versions</div>
+<pre>models:
+  - name: fct_claims
+    latest_version: 2
+    versions:
+      - v: 1            <span class="cm"># kept for backward compat</span>
+      - v: 2            <span class="cm"># new schema</span>
+        defined_in: fct_claims_v2   <span class="cm"># points to different .sql file</span></pre>
+
+      <div class="code-label l-j">✦ models/fct_claims_v2.sql</div>
+<pre><span class="jt">{{</span> <span class="jf">config</span>(version=<span class="nm">2</span>) <span class="jt">}}</span>
+
+<span class="kw">SELECT</span>
+    claim_id,
+    patient_id,
+    payer_id,
+    billed_amount,
+    allowed_amount,    <span class="cm">-- new column in v2</span>
+    claim_status,
+    claim_date
+<span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'stg_claims'</span>) <span class="jt">}}</span></pre>
+
+      <div class="code-label l-s">✦ Snowflake objects created</div>
+<pre><span class="cm">-- Both exist simultaneously:</span>
+ANALYTICS_DB.MARTS.FCT_CLAIMS_V1    <span class="cm">-- old consumers still work</span>
+ANALYTICS_DB.MARTS.FCT_CLAIMS_V2    <span class="cm">-- new consumers use this</span>
+
+<span class="cm">-- Latest alias (points to v2):</span>
+ANALYTICS_DB.MARTS.FCT_CLAIMS       <span class="cm">-- always latest_version</span></pre>
+
+      <div class="code-label l-j">✦ Downstream consumer referencing a specific version</div>
+<pre><span class="cm">-- Pin to v1 (safe during migration)</span>
+<span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'fct_claims'</span>, v=<span class="nm">1</span>) <span class="jt">}}</span>
+
+<span class="cm">-- Use latest (v2)</span>
+<span class="kw">FROM</span> <span class="jt">{{</span> <span class="jf">ref</span>(<span class="str">'fct_claims'</span>) <span class="jt">}}</span></pre>
+
+      <div class="insight i-why"><div class="i-icon">🧠</div><div class="i-body"><strong>Why versioning matters in enterprise:</strong> Power BI reports, downstream dbt models, and BI tools break when you rename a column or change a type. Model versioning lets you ship v2 to Snowflake while v1 consumers migrate at their own pace. Only when all consumers are on v2 do you deprecate v1. Zero downtime schema evolution.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 15 ROW/COL POLICIES ★ ══ -->
+<div id="masking" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 15 — NEW</div>
+    <div class="sec-title">Row Access Policies &amp; Column Masking <span class="new-badge">Snowflake Native</span></div>
+    <div class="sec-desc">Snowflake's native data governance features integrated with dbt. Row Access Policies filter which rows a role sees. Column Masking Policies hide/hash sensitive columns per role.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Column Masking Policy — PII via dbt meta</div><span class="badge b-p">MASKING</span><span class="badge b-s">ALTER TABLE</span></div>
+    <div class="card-body">
+      <div class="code-label l-y">✦ schema.yml — attach masking policy to column</div>
+<pre>models:
+  - name: fct_claims
+    columns:
+      - name: ssn
+        meta:
+          masking_policy: analytics_db.governance.pii_mask_ssn
+      - name: date_of_birth
+        meta:
+          masking_policy: analytics_db.governance.pii_mask_dob</pre>
+
+      <div class="code-label l-y">✦ macros/apply_masking_policies.sql (post_hook pattern)</div>
+<pre><span class="jt">{%</span> <span class="kw">macro</span> <span class="jf">apply_masking_policy</span>(model, column, policy) <span class="jt">%}</span>
+    <span class="fn">ALTER TABLE</span> <span class="jt">{{</span> model <span class="jt">}}</span>
+    <span class="fn">MODIFY COLUMN</span> <span class="jt">{{</span> column <span class="jt">}}</span>
+    <span class="kw">SET MASKING POLICY</span> <span class="jt">{{</span> policy <span class="jt">}}</span>;
+<span class="jt">{%</span> <span class="kw">endmacro</span> <span class="jt">%}</span></pre>
+
+      <div class="code-label l-s">✦ The Snowflake masking policy itself</div>
+<pre><span class="kw">CREATE OR REPLACE</span> <span class="fn">MASKING POLICY</span>
+    ANALYTICS_DB.GOVERNANCE.PII_MASK_SSN
+<span class="kw">AS</span> (val VARCHAR) <span class="kw">RETURNS</span> VARCHAR ->
+<span class="kw">CASE</span>
+    <span class="kw">WHEN</span> <span class="fn">CURRENT_ROLE</span>() <span class="kw">IN</span> (<span class="str">'CLINICAL_ADMIN'</span>, <span class="str">'PHI_ROLE'</span>)
+        <span class="kw">THEN</span> val             <span class="cm">-- full SSN for authorized roles</span>
+    <span class="kw">ELSE</span> <span class="fn">SHA2</span>(val)          <span class="cm">-- hashed for everyone else</span>
+<span class="kw">END</span>;</pre>
+
+      <div class="code-label l-s">✦ Row Access Policy</div>
+<pre><span class="kw">CREATE OR REPLACE</span> <span class="fn">ROW ACCESS POLICY</span>
+    ANALYTICS_DB.GOVERNANCE.FACILITY_ROW_POLICY
+<span class="kw">AS</span> (facility_id VARCHAR) <span class="kw">RETURNS</span> BOOLEAN ->
+    facility_id <span class="kw">IN</span> (
+        <span class="kw">SELECT</span> facility_id
+        <span class="kw">FROM</span> ANALYTICS_DB.GOVERNANCE.USER_FACILITY_MAP
+        <span class="kw">WHERE</span> username = <span class="fn">CURRENT_USER</span>()
+    );
+
+<span class="cm">-- Apply to table:</span>
+<span class="fn">ALTER TABLE</span> ANALYTICS_DB.MARTS.FCT_CLAIMS
+    <span class="kw">ADD ROW ACCESS POLICY</span>
+    ANALYTICS_DB.GOVERNANCE.FACILITY_ROW_POLICY
+    <span class="kw">ON</span> (facility_id);</pre>
+
+      <div class="insight i-snow"><div class="i-icon">❄️</div><div class="i-body"><strong>HIPAA-compliant pattern:</strong> In behavioral health / RCM environments, Row Access Policies let you keep one physical fact table but serve facility-scoped views to each tenant automatically. A collector at Facility A never sees Facility B's AR data, enforced at the Snowflake engine level — even if Power BI doesn't filter correctly.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 16 METRICFLOW ★ ══ -->
+<div id="metricflow" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 16 — NEW</div>
+    <div class="sec-title">MetricFlow — Semantic Layer <span class="new-badge">dbt 1.6+</span></div>
+    <div class="sec-desc">MetricFlow is dbt's semantic layer. Define metrics once in YAML, query them consistently across any BI tool. Compiles to Snowflake SQL automatically.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">MetricFlow — Semantic Model + Metric Definition</div><span class="badge b-p">METRICFLOW</span><span class="badge b-s">GENERATED SQL</span></div>
+    <div class="card-body">
+      <div class="code-label l-y">✦ models/semantics/sem_claims.yml</div>
+<pre>semantic_models:
+  - name: sem_claims
+    model: ref('fct_claims')
+    description: "Semantic model for claims metrics"
+
+    defaults:
+      agg_time_dimension: claim_date
+
+    dimensions:
+      - name: claim_date
+        type: time
+        type_params:
+          time_granularity: day
+      - name: payer_id
+        type: categorical
+      - name: facility_id
+        type: categorical
+      - name: claim_status
+        type: categorical
+
+    measures:
+      - name: total_billed
+        description: "Total billed amount"
+        agg: sum
+        expr: billed_amount
+      - name: claim_count
+        description: "Number of claims"
+        agg: count_distinct
+        expr: claim_id
+      - name: avg_days_outstanding
+        agg: average
+        expr: days_outstanding
+
+metrics:
+  - name: total_ar_value
+    description: "Total accounts receivable billed amount"
+    type: simple
+    type_params:
+      measure: total_billed
+
+  - name: denial_rate
+    description: "% of claims denied"
+    type: ratio
+    type_params:
+      numerator:
+        name: claim_count
+        filter: "{{ Dimension('sem_claims__claim_status') }} = 'DENIED'"
+      denominator:
+        name: claim_count</pre>
+
+      <div class="code-label l-j">✦ CLI query using MetricFlow</div>
+<pre>mf query \
+  --metrics total_ar_value,denial_rate \
+  --group-by payer_id,metric_time__month \
+  --where "metric_time__month >= '2024-01-01'" \
+  --limit 100</pre>
+
+      <div class="arrow-row">MetricFlow compiles → Snowflake SQL</div>
+
+      <div class="code-label l-s">✦ Generated Snowflake SQL</div>
+<pre><span class="kw">SELECT</span>
+    <span class="fn">DATE_TRUNC</span>(<span class="str">'MONTH'</span>, claim_date)     <span class="kw">AS</span> metric_time__month,
+    payer_id,
+    <span class="fn">SUM</span>(billed_amount)               <span class="kw">AS</span> total_ar_value,
+    <span class="fn">COUNT_DISTINCT</span>(<span class="kw">CASE WHEN</span> claim_status = <span class="str">'DENIED'</span>
+        <span class="kw">THEN</span> claim_id <span class="kw">END</span>)
+      / <span class="fn">NULLIF</span>(<span class="fn">COUNT_DISTINCT</span>(claim_id), <span class="nm">0</span>) <span class="kw">AS</span> denial_rate
+<span class="kw">FROM</span> ANALYTICS_DB.MARTS.FCT_CLAIMS
+<span class="kw">WHERE</span> <span class="fn">DATE_TRUNC</span>(<span class="str">'MONTH'</span>, claim_date) >= <span class="str">'2024-01-01'</span>
+<span class="kw">GROUP BY</span> <span class="nm">1</span>, <span class="nm">2</span>
+<span class="kw">LIMIT</span> <span class="nm">100</span></pre>
+
+      <div class="insight i-why"><div class="i-icon">🧠</div><div class="i-body"><strong>Why MetricFlow?</strong> Without a semantic layer, every BI developer writes their own version of "total AR" with slightly different filters. One analyst uses <code>billed_amount</code>, another uses <code>allowed_amount</code>. The metrics diverge. MetricFlow makes "total_ar_value" a single source of truth — defined once in YAML, consistent across Power BI, Tableau, and direct Snowflake queries.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 17 DBT-UTILS ══ -->
+<div id="utils" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 17</div>
+    <div class="sec-title">dbt-utils &amp; Key Package Macros</div>
+    <div class="sec-desc">Pre-built macros that compile to valid Snowflake SQL. The most-used package in the dbt ecosystem.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">dbt-utils — Core Macros Compiled</div><span class="badge b-m">dbt-utils</span></div>
+    <div class="card-body">
+      <h3 class="sub">generate_surrogate_key()</h3>
+      <div class="code-label l-j">✦ Jinja</div>
+<pre><span class="jt">{{</span> <span class="jf">dbt_utils.generate_surrogate_key</span>([<span class="str">'claim_id'</span>, <span class="str">'payer_id'</span>]) <span class="jt">}}</span> <span class="kw">AS</span> sk</pre>
+      <div class="code-label l-s">✦ Snowflake SQL</div>
+<pre><span class="fn">MD5</span>(
+    <span class="fn">COALESCE</span>(<span class="fn">CAST</span>(claim_id <span class="kw">AS</span> VARCHAR), <span class="str">''</span>) || <span class="str">'-'</span> ||
+    <span class="fn">COALESCE</span>(<span class="fn">CAST</span>(payer_id  <span class="kw">AS</span> VARCHAR), <span class="str">''</span>)
+) <span class="kw">AS</span> sk</pre>
+
+      <div class="divider"></div>
+      <h3 class="sub">pivot()</h3>
+      <div class="code-label l-j">✦ Jinja</div>
+<pre><span class="jt">{{</span> <span class="jf">dbt_utils.pivot</span>(column=<span class="str">'status'</span>, values=[<span class="str">'PAID'</span>,<span class="str">'DENIED'</span>], agg=<span class="str">'COUNT'</span>, then_value=<span class="str">'claim_id'</span>) <span class="jt">}}</span></pre>
+      <div class="code-label l-s">✦ Snowflake SQL</div>
+<pre><span class="fn">COUNT</span>(<span class="kw">CASE WHEN</span> status=<span class="str">'PAID'</span>   <span class="kw">THEN</span> claim_id <span class="kw">END</span>) <span class="kw">AS</span> PAID,
+<span class="fn">COUNT</span>(<span class="kw">CASE WHEN</span> status=<span class="str">'DENIED'</span> <span class="kw">THEN</span> claim_id <span class="kw">END</span>) <span class="kw">AS</span> DENIED</pre>
+
+      <div class="divider"></div>
+      <h3 class="sub">star() — SELECT * except columns</h3>
+      <div class="code-label l-j">✦ Jinja</div>
+<pre><span class="jt">{{</span> <span class="jf">dbt_utils.star</span>(from=<span class="jf">ref</span>(<span class="str">'stg_claims'</span>), except=[<span class="str">'ssn'</span>,<span class="str">'dob'</span>]) <span class="jt">}}</span></pre>
+      <div class="code-label l-s">✦ Snowflake SQL (expands all cols except excluded)</div>
+<pre><span class="kw">claim_id, patient_id, payer_id, billed_amount, claim_status, updated_at</span>
+<span class="cm">-- ssn and dob removed automatically</span></pre>
+
+      <div class="divider"></div>
+      <h3 class="sub">date_spine() — Date Dimension Generator</h3>
+      <div class="code-label l-j">✦ Jinja</div>
+<pre><span class="jt">{{</span> <span class="jf">dbt_utils.date_spine</span>(
+    datepart   = <span class="str">'day'</span>,
+    start_date = <span class="str">"cast('2024-01-01' as date)"</span>,
+    end_date   = <span class="str">"current_date()"</span>
+) <span class="jt">}}</span></pre>
+      <div class="code-label l-s">✦ Compiled Snowflake SQL (GENERATOR-based)</div>
+<pre><span class="kw">WITH</span> spine AS (
+  <span class="kw">SELECT</span>
+    <span class="fn">DATEADD</span>(<span class="str">'day'</span>, <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="nm">1</span>) - <span class="nm">1</span>,
+        <span class="fn">CAST</span>(<span class="str">'2024-01-01'</span> <span class="kw">AS DATE</span>)) <span class="kw">AS</span> date_day
+  <span class="kw">FROM</span> <span class="fn">TABLE</span>(<span class="fn">GENERATOR</span>(ROWCOUNT => <span class="nm">730</span>))
+)
+<span class="kw">SELECT</span> date_day <span class="kw">FROM</span> spine
+<span class="kw">WHERE</span> date_day &lt; <span class="fn">CURRENT_DATE</span>()</pre>
+
+      <div class="divider"></div>
+      <h3 class="sub">unpivot()</h3>
+      <div class="code-label l-j">✦ Jinja</div>
+<pre><span class="jt">{{</span> <span class="jf">dbt_utils.unpivot</span>(
+    relation  = <span class="jf">ref</span>(<span class="str">'wide_ar_buckets'</span>),
+    cast_to   = <span class="str">'numeric'</span>,
+    id_columns= [<span class="str">'facility_id'</span>],
+    value_column_prefix = <span class="str">'ar_'</span>
+) <span class="jt">}}</span></pre>
+      <div class="code-label l-s">✦ Compiled (UNION ALL across columns)</div>
+<pre><span class="kw">SELECT</span> facility_id, <span class="str">'ar_0_30'</span> <span class="kw">AS</span> bucket, ar_0_30 <span class="kw">AS</span> value <span class="kw">FROM</span> wide_ar_buckets
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span> facility_id, <span class="str">'ar_31_60'</span> <span class="kw">AS</span> bucket, ar_31_60 <span class="kw">AS</span> value <span class="kw">FROM</span> wide_ar_buckets
+<span class="kw">UNION ALL</span> ...</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 18 COMPILE FLOW ══ -->
+<div id="compile" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Module 18</div>
+    <div class="sec-title">Complete Compile Flow &amp; Jinja Reference</div>
+    <div class="sec-desc">End-to-end pipeline from .sql file to Snowflake object. Every Jinja construct and when it resolves.</div>
+  </div>
+  <div class="jinja-card">
+    <div class="card-head"><div class="card-title">Full Jinja → Snowflake Reference Table</div></div>
+    <div class="card-body">
+      <div class="flow-row">
+        <div class="flow-box"><div class="flow-val">model.sql</div><div class="flow-lbl">Jinja + SQL</div></div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box"><div class="flow-val">Jinja Engine</div><div class="flow-lbl">Renders templates</div></div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box"><div class="flow-val">compiled/</div><div class="flow-lbl">Pure Snowflake SQL</div></div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box"><div class="flow-val">Snowflake</div><div class="flow-lbl">Executes DDL/DML</div></div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box"><div class="flow-val">Object</div><div class="flow-lbl">TABLE/VIEW/DT</div></div>
+      </div>
+
+      <table class="ref-table">
+        <thead><tr><th>Jinja Construct</th><th>Resolves At</th><th>Snowflake Output / Action</th></tr></thead>
+        <tbody>
+          <tr><td>{{ ref('x') }}</td><td>Compile</td><td>DB.SCHEMA.MODEL + DAG edge added</td></tr>
+          <tr><td>{{ source('s','t') }}</td><td>Compile</td><td>RAW_DB.SCHEMA.TABLE + source node</td></tr>
+          <tr><td>{{ this }}</td><td>Compile</td><td>Current model fully qualified name</td></tr>
+          <tr><td>{{ config(...) }}</td><td>Parse</td><td>Model metadata — no SQL emitted</td></tr>
+          <tr><td>{{ var('x') }}</td><td>Compile</td><td>Scalar value from dbt_project.yml</td></tr>
+          <tr><td>{{ env_var('X') }}</td><td>Compile</td><td>String from OS environment</td></tr>
+          <tr><td>{% if is_incremental() %}</td><td>Compile</td><td>True if table exists + not --full-refresh</td></tr>
+          <tr><td>{{ run_query('SQL') }}</td><td>Compile</td><td>Fires Snowflake query, returns result object</td></tr>
+          <tr><td>{% if execute %}</td><td>Compile</td><td>Guards run_query from parse phase</td></tr>
+          <tr><td>{% macro %}</td><td>Compile</td><td>Expands to SQL inline</td></tr>
+          <tr><td>{% snapshot %}</td><td>Runtime</td><td>SCD2 MERGE + metadata columns</td></tr>
+          <tr><td>pre_hook / post_hook</td><td>Runtime</td><td>Snowflake SQL before/after model DDL</td></tr>
+          <tr><td>on-run-start/end</td><td>Runtime</td><td>Snowflake SQL at job start/end</td></tr>
+          <tr><td>{{ target.name }}</td><td>Compile</td><td>Active profile target (dev/prod/ci)</td></tr>
+          <tr><td>{{ target.warehouse }}</td><td>Compile</td><td>Snowflake warehouse from profiles.yml</td></tr>
+          <tr><td>{{ invocation_id }}</td><td>Runtime</td><td>Unique UUID for each dbt run</td></tr>
+          <tr><td>{{ run_started_at }}</td><td>Runtime</td><td>ISO timestamp when run began</td></tr>
+          <tr><td>{{ loop.last }}</td><td>Compile</td><td>Boolean — controls trailing commas</td></tr>
+          <tr><td>{{ list | join(',') }}</td><td>Compile</td><td>Jinja filter — list to string</td></tr>
+          <tr><td>{{ ref('m', v=2) }}</td><td>Compile</td><td>Specific model version reference</td></tr>
+          <tr><td>dbt.ref() in Python</td><td>Runtime (Snowpark)</td><td>Snowpark DataFrame from model</td></tr>
+        </tbody>
+      </table>
+
+      <div class="insight i-tip"><div class="i-icon">💡</div><div class="i-body"><strong>Debug tip:</strong> Run <code>dbt compile --select my_model</code> and inspect <code>target/compiled/project/models/my_model.sql</code> to see exactly what Snowflake will receive. This is the #1 tool for debugging Jinja issues.</div></div>
+      <div class="insight i-snow"><div class="i-icon">❄️</div><div class="i-body"><strong>target object:</strong> <code>target.name</code> (dev/prod), <code>target.schema</code>, <code>target.database</code>, <code>target.warehouse</code>, <code>target.role</code>, <code>target.threads</code>, <code>target.type</code> (always 'snowflake' in your stack), <code>target.user</code>.</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function sw(el, id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
