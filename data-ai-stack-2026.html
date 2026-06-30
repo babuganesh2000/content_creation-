@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From Data to Intelligence — The Modern Data + AI Stack (2026)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a1020;
+  --bg-2:#0e1730;
+  --panel:#ffffff;
+  --panel-soft:#f6f8fc;
+  --ink:#16203a;
+  --ink-soft:#46537a;
+  --line:#dbe2f0;
+  --gold:#f5b942;
+  --green:#34d399;
+
+  /* category colors */
+  --c-found:#2563eb;      /* Data Foundation */
+  --c-know:#7c3aed;       /* Knowledge & Context */
+  --c-ai:#ea580c;         /* AI & Intelligence */
+  --c-ops:#b58a00;        /* Operations & Governance */
+  --c-app:#9d6bff;        /* Application & Outcomes */
+
+  --c-found-bg:#eaf1ff;
+  --c-know-bg:#f3edff;
+  --c-ai-bg:#fff0e6;
+  --c-ops-bg:#fdf6dd;
+  --c-app-bg:#f4eeff;
+
+  --radius:10px;
+  --shadow:0 10px 30px rgba(3,8,24,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+  background:
+    radial-gradient(1200px 600px at 85% -10%, #14224a 0%, transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, #101c3e 0%, transparent 55%),
+    var(--bg);
+  color:#e8edf8;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+.page{max-width:1880px;margin:0 auto;padding:28px 28px 64px}
+
+/* ---------- header ---------- */
+.masthead{
+  display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;
+  padding:10px 6px 22px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:22px;
+}
+.kicker{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.22em;
+  text-transform:uppercase;color:#8fa3d8;margin-bottom:10px;
+}
+h1{
+  font-family:"Archivo",sans-serif;font-weight:900;letter-spacing:-.01em;
+  font-size:clamp(26px,3.2vw,46px);line-height:1.04;text-transform:uppercase;color:#fff;
+}
+h1 .year{color:var(--gold)}
+.sub{margin-top:12px;font-size:14.5px;color:#aebbe2;max-width:880px}
+.sub b.green{color:var(--green);font-weight:600}
+.sub b.white{color:#fff;font-weight:600}
+.pillars{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:10px}
+.pillar{
+  border:1px solid rgba(255,255,255,.14);border-radius:var(--radius);
+  background:rgba(255,255,255,.04);padding:12px 14px;min-width:150px;
+}
+.pillar .p-icon{font-size:18px;margin-bottom:6px}
+.pillar .p-top{font-family:"Archivo";font-weight:800;font-size:13px;color:#fff;text-transform:uppercase;letter-spacing:.03em}
+.pillar .p-sub{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8fa3d8;margin-top:2px}
+
+/* ---------- banner ---------- */
+.hype{
+  margin:0 0 22px;border-radius:var(--radius);
+  background:linear-gradient(90deg,#101b3a,#0d2a33);
+  border:1px solid rgba(255,255,255,.14);
+  padding:12px 18px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:center;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+}
+.hype b{color:var(--gold)} .hype i{color:var(--green);font-style:normal}
+
+/* ---------- timeline ---------- */
+.section-title{
+  font-family:"Archivo";font-weight:800;font-size:15px;letter-spacing:.06em;text-transform:uppercase;
+  color:#fff;display:flex;align-items:center;gap:10px;margin:0 0 12px;
+}
+.section-title::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.14)}
+.timeline{
+  display:grid;grid-auto-flow:column;grid-auto-columns:minmax(118px,1fr);
+  gap:0;overflow-x:auto;padding:14px;border-radius:var(--radius);
+  background:var(--panel);box-shadow:var(--shadow);margin-bottom:26px;
+}
+.t-item{position:relative;padding:8px 18px 8px 10px;color:var(--ink)}
+.t-item:not(:last-child)::after{
+  content:"→";position:absolute;right:2px;top:14px;color:#9aa8cf;font-weight:700;
+}
+.t-era{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:#1d4ed8;letter-spacing:.04em}
+.t-name{font-family:"Archivo";font-weight:800;font-size:12.5px;margin:4px 0 4px;line-height:1.2}
+.t-desc{font-size:10.5px;color:var(--ink-soft);line-height:1.35}
+.t-item.future .t-era,.t-item.future .t-name{color:#b45309}
+
+/* ---------- main grid ---------- */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:22px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:10px}
+
+/* layer row */
+.layer{
+  display:grid;grid-template-columns:218px minmax(0,1fr);gap:0;
+  background:var(--panel);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);
+  transition:opacity .25s, transform .15s;
+}
+.layer:hover{transform:translateY(-1px)}
+.layer.dim{opacity:.25}
+.l-label{
+  padding:14px 14px 14px 12px;border-right:1px solid var(--line);
+  display:flex;gap:10px;align-items:flex-start;background:var(--panel-soft);
+}
+.l-num{
+  flex:0 0 auto;width:30px;height:30px;border-radius:7px;display:grid;place-items:center;
+  font-family:"Archivo";font-weight:900;font-size:14px;color:#fff;margin-top:1px;
+}
+.l-name{font-family:"Archivo";font-weight:800;font-size:13px;line-height:1.2;color:var(--ink);text-transform:uppercase;letter-spacing:.02em}
+.l-tag{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:400;color:var(--ink-soft);text-transform:none;letter-spacing:.02em;margin-top:4px}
+.l-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+
+/* category accents */
+.cat-found .l-num{background:var(--c-found)} .cat-found{border-left:4px solid var(--c-found)}
+.cat-know  .l-num{background:var(--c-know)}  .cat-know{border-left:4px solid var(--c-know)}
+.cat-ai    .l-num{background:var(--c-ai)}    .cat-ai{border-left:4px solid var(--c-ai)}
+.cat-ops   .l-num{background:var(--c-ops)}   .cat-ops{border-left:4px solid var(--c-ops)}
+.cat-app   .l-num{background:var(--c-app)}   .cat-app{border-left:4px solid var(--c-app)}
+
+/* groups inside a layer */
+.grp-row{display:grid;gap:10px}
+.grp-row.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grp-row.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grp-row.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.grp-row.cols-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.grp{
+  border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff;min-width:0;
+}
+.grp h4{
+  font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:#1d4ed8;margin-bottom:7px;
+}
+.cat-know .grp h4{color:#6d28d9}
+.cat-ai .grp h4{color:#c2410c}
+.cat-ops .grp h4{color:#92700a}
+.cat-app .grp h4{color:#7c4dff}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{
+  font-size:11px;font-weight:500;color:var(--ink);
+  background:var(--panel-soft);border:1px solid var(--line);border-radius:999px;
+  padding:2.5px 9px;white-space:nowrap;
+}
+.chip.hl{background:#16203a;color:#fff;border-color:#16203a}
+.note{font-size:10.5px;color:var(--ink-soft);margin-top:6px;font-style:italic}
+
+/* medallion tiles (layer 3) */
+.medal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.m-tile{border-radius:8px;padding:10px;border:1px solid var(--line)}
+.m-tile h5{font-family:"Archivo";font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:2px}
+.m-tile .m-sub{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink-soft);margin-bottom:7px}
+.m-tile ul{list-style:none}
+.m-tile li{font-size:11px;color:var(--ink);padding-left:12px;position:relative;line-height:1.5}
+.m-tile li::before{content:"•";position:absolute;left:1px;color:var(--ink-soft)}
+.m-bronze{background:#fdf3ec;border-color:#ecd5c2} .m-bronze h5{color:#9a5b2d}
+.m-silver{background:#f2f5f9;border-color:#d4dce8} .m-silver h5{color:#5b6b85}
+.m-gold{background:#fdf8e7;border-color:#ecdcae}  .m-gold h5{color:#9a7b1a}
+.m-sem{background:#eefaf3;border-color:#bfe7cf}   .m-sem h5{color:#15803d}
+
+/* ---------- sidebar ---------- */
+.side{display:flex;flex-direction:column;gap:16px;position:sticky;top:18px}
+.card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;color:var(--ink)}
+.card.dark{background:linear-gradient(160deg,#101b3a,#0c1530);color:#e8edf8;border:1px solid rgba(255,255,255,.14)}
+.card h3{font-family:"Archivo";font-weight:800;font-size:13.5px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;color:inherit}
+.card h3 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-right:8px;vertical-align:1px}
+.why{display:grid;gap:9px}
+.why .w-item{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start}
+.why .w-ic{width:26px;height:26px;border-radius:7px;background:#eaf1ff;display:grid;place-items:center;font-size:13px}
+.why b{font-size:12px;display:block}
+.why span{font-size:11px;color:var(--ink-soft)}
+.checks{list-style:none;display:grid;gap:7px}
+.checks li{font-size:12px;display:flex;gap:8px;align-items:flex-start}
+.checks li::before{content:"✓";color:#1d8f5b;font-weight:700;flex:0 0 auto}
+.principle{
+  margin-top:12px;border:1px dashed #c9b46a;background:#fdf8e7;border-radius:8px;padding:11px 12px;
+  font-size:12px;color:#6b5410;text-align:center;font-weight:600;
+}
+.principle .big{display:block;font-family:"Archivo";font-weight:800;font-size:13px;color:#16203a;margin-top:4px}
+.land{display:grid;gap:10px}
+.land .grp{background:var(--panel-soft)}
+.answer{
+  border-radius:8px;background:#0d3b33;color:#d9f5e8;padding:11px 12px;font-size:12px;text-align:center;
+  border:1px solid #1d6e57;margin-top:2px;
+}
+.answer b{display:block;color:#fff;font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-family:"IBM Plex Mono",monospace;margin-bottom:3px}
+.bottom{display:grid;gap:9px}
+.bottom .b-item{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-size:12.5px}
+.bottom .b-ic{width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,.08);display:grid;place-items:center;font-size:13px}
+.bottom b{color:#fff}
+
+/* ---------- legend ---------- */
+.legend{
+  margin-top:22px;background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;color:var(--ink);
+}
+.legend .lg-title{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);margin-right:4px}
+.lg{display:flex;gap:8px;align-items:center;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;border-radius:999px;padding:4px 12px;user-select:none}
+.lg:hover{background:var(--panel-soft)}
+.lg.active{border-color:var(--ink);background:var(--panel-soft)}
+.sw{width:12px;height:12px;border-radius:3px}
+.sw.found{background:var(--c-found)} .sw.know{background:var(--c-know)} .sw.ai{background:var(--c-ai)}
+.sw.ops{background:var(--c-ops)} .sw.app{background:var(--c-app)}
+.lg-hint{font-size:11px;color:var(--ink-soft);margin-left:auto}
+
+footer{margin-top:18px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:#7587b8;letter-spacing:.08em}
+
+/* ---------- jump navigation ---------- */
+.jumpnav{
+  position:sticky;top:0;z-index:50;margin:0 -28px 20px;padding:10px 28px;
+  background:rgba(8,13,28,.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(255,255,255,.12);
+  display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:thin;
+}
+.jumpnav .jn-title{
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:#8fa3d8;flex:0 0 auto;margin-right:6px;
+}
+.jumpnav a{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+  font-size:11.5px;font-weight:600;color:#dbe4f8;border:1px solid rgba(255,255,255,.16);
+  border-radius:999px;padding:4px 11px;white-space:nowrap;transition:background .15s,border-color .15s;
+}
+.jumpnav a:hover,.jumpnav a:focus-visible{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.4);outline:none}
+.jumpnav a.jn-current{background:rgba(255,255,255,.14);border-color:#fff}
+.jumpnav .jn-dot{width:8px;height:8px;border-radius:3px;flex:0 0 auto}
+.jn-dot.found{background:var(--c-found)} .jn-dot.know{background:var(--c-know)} .jn-dot.ai{background:var(--c-ai)}
+.jn-dot.ops{background:var(--c-ops)} .jn-dot.app{background:var(--c-app)} .jn-dot.util{background:#64748b}
+.layer,.timeline,.legend,.card{scroll-margin-top:74px}
+
+/* ---------- linked chips ---------- */
+a.chip{cursor:pointer;text-decoration:none;transition:border-color .15s,background .15s}
+a.chip::after{content:"↗";font-size:9px;margin-left:4px;color:#6b7aa8;vertical-align:1px}
+a.chip:hover,a.chip:focus-visible{border-color:#16203a;background:#eef3ff;text-decoration:underline;outline:none}
+a.chip.hl:hover{background:#2a3a63;color:#fff}
+a.chip.hl::after{color:#aebbe2}
+
+/* layer permalink */
+.l-anchor{margin-left:auto;align-self:flex-start;text-decoration:none;font-size:13px;color:#9aa8cf;
+  opacity:0;transition:opacity .15s;padding:0 2px;flex:0 0 auto}
+.layer:hover .l-anchor,.l-anchor:focus-visible{opacity:1;outline:none}
+.l-anchor:hover{color:#1d4ed8}
+
+/* back to top */
+.to-top{
+  position:fixed;right:22px;bottom:22px;z-index:60;width:44px;height:44px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.25);background:#16203a;color:#fff;font-size:18px;cursor:pointer;
+  box-shadow:var(--shadow);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.to-top.show{opacity:1;pointer-events:auto}
+.to-top:hover{background:#1d2a4d}
+@media print{.jumpnav,.to-top{display:none}}
+
+/* ---------- responsive & print ---------- */
+@media (max-width:1380px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+}
+@media (max-width:900px){
+  .masthead{grid-template-columns:1fr}
+  .pillars{grid-template-columns:repeat(2,1fr)}
+  .layer{grid-template-columns:1fr}
+  .l-label{border-right:0;border-bottom:1px solid var(--line)}
+  .grp-row.cols-3,.grp-row.cols-4,.grp-row.cols-5,.grp-row.cols-2,.medal{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .grp-row.cols-2,.grp-row.cols-3,.grp-row.cols-4,.grp-row.cols-5,.medal{grid-template-columns:1fr}
+  .pillars{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+@media print{
+  body{background:#fff;color:#000}
+  .layer,.card,.timeline,.legend{box-shadow:none;border:1px solid #ccc}
+  .side{position:static}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- ===================== MASTHEAD ===================== -->
+  <header class="masthead">
+    <div>
+      <div class="kicker">High-Level Architecture Map · Enterprise Reference</div>
+      <h1>From Data to Intelligence: The Modern Data + AI Stack <span class="year">(2026)</span></h1>
+      <p class="sub">AI was discovered in the 1970s. The hype began after 2019 with Transformer architecture.
+        <b class="white">The principles never changed.</b> <b class="green">The architecture evolved.</b></p>
+    </div>
+    <div class="pillars">
+      <div class="pillar"><div class="p-icon">🛢️</div><div class="p-top">Data</div><div class="p-sub">is the fuel</div></div>
+      <div class="pillar"><div class="p-icon">⚙️</div><div class="p-top">Models</div><div class="p-sub">are the engine</div></div>
+      <div class="pillar"><div class="p-icon">🧩</div><div class="p-top">Platform</div><div class="p-sub">is the chassis</div></div>
+      <div class="pillar"><div class="p-icon">👥</div><div class="p-top">People</div><div class="p-sub">drive outcomes</div></div>
+    </div>
+  </header>
+
+  <!-- ===================== TIMELINE ===================== -->
+  <div class="section-title" id="timeline">AI Timeline · From Discovery to Transformation</div>
+  <div class="timeline">
+    <div class="t-item"><div class="t-era">1950s–1960s</div><div class="t-name">Birth of AI</div><div class="t-desc">Turing Test, logic theorists, ELIZA</div></div>
+    <div class="t-item"><div class="t-era">1970s</div><div class="t-name">AI Winter I</div><div class="t-desc">High expectations, limited computing</div></div>
+    <div class="t-item"><div class="t-era">1980s–1990s</div><div class="t-name">Expert Systems &amp; Statistical ML</div><div class="t-desc">Rule-based systems, ML foundations</div></div>
+    <div class="t-item"><div class="t-era">2000s–2010s</div><div class="t-name">ML Renaissance</div><div class="t-desc">More data, better algorithms, compute</div></div>
+    <div class="t-item"><div class="t-era">2017</div><div class="t-name">Transformer Architecture</div><div class="t-desc">"Attention Is All You Need" paper</div></div>
+    <div class="t-item"><div class="t-era">2019+</div><div class="t-name">Foundation Models</div><div class="t-desc">BERT, GPT-2/3, T5 and successors</div></div>
+    <div class="t-item"><div class="t-era">2022+</div><div class="t-name">ChatGPT Moment</div><div class="t-desc">Mass adoption of conversational AI</div></div>
+    <div class="t-item"><div class="t-era">2023+</div><div class="t-name">RAG Era</div><div class="t-desc">Retrieval-Augmented Generation</div></div>
+    <div class="t-item"><div class="t-era">2023+</div><div class="t-name">Agentic AI Era</div><div class="t-desc">Agents, tools, autonomy</div></div>
+    <div class="t-item"><div class="t-era">2025+</div><div class="t-name">Multi-Agent Ecosystems</div><div class="t-desc">MCP, A2A, agent networks</div></div>
+    <div class="t-item future"><div class="t-era">2030+</div><div class="t-name">The Future</div><div class="t-desc">Unknown… exciting!</div></div>
+  </div>
+
+  <div class="hype">THE HYPE COMES AND GOES. <b>THE FOUNDATIONS REMAIN.</b> <i>Data quality, modeling, governance and architecture never go out of style.</i></div>
+
+  <nav class="jumpnav" id="jumpnav" aria-label="Jump to layer">
+    <span class="jn-title">Navigate</span>
+    <a href="#timeline"><span class="jn-dot util"></span>Timeline</a>
+    <!-- layer links injected by script -->
+    <a href="#legend" data-static="1"><span class="jn-dot util"></span>Legend</a>
+  </nav>
+
+  <div class="layout">
+    <!-- ===================== STACK ===================== -->
+    <main class="stack" id="stack">
+
+      <!-- 1 DATA SOURCES -->
+      <section class="layer cat-found" data-cat="found">
+        <div class="l-label"><div class="l-num">1</div><div><div class="l-name">Data Sources<span class="l-tag">Everything starts here</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-4">
+            <div class="grp"><h4>Databases</h4><div class="chips"><span class="chip">Oracle</span><span class="chip">SQL Server</span><span class="chip">MySQL</span><span class="chip">PostgreSQL</span><span class="chip">MongoDB</span></div></div>
+            <div class="grp"><h4>Files / Documents</h4><div class="chips"><span class="chip">CSV</span><span class="chip">JSON</span><span class="chip">XML</span><span class="chip">PDF</span><span class="chip">Parquet</span></div></div>
+            <div class="grp"><h4>APIs &amp; SaaS</h4><div class="chips"><span class="chip">REST</span><span class="chip">GraphQL</span><span class="chip">SaaS connectors</span></div></div>
+            <div class="grp"><h4>Streaming &amp; Events</h4><div class="chips"><span class="chip">Kafka</span><span class="chip">Pulsar</span><span class="chip">Event streams</span></div></div>
+          </div>
+          <div class="grp-row cols-3">
+            <div class="grp"><h4>CDC &amp; Replication</h4><div class="chips"><span class="chip">Debezium</span><span class="chip">Fivetran</span></div></div>
+            <div class="grp"><h4>IoT / Devices</h4><div class="chips"><span class="chip">Sensors</span><span class="chip">Telemetry</span><span class="chip">Edge devices</span></div></div>
+            <div class="grp"><h4>Third Party / External</h4><div class="chips"><span class="chip">Market data</span><span class="chip">Partner feeds</span><span class="chip">Public datasets</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 INGESTION -->
+      <section class="layer cat-found" data-cat="found">
+        <div class="l-label"><div class="l-num">2</div><div><div class="l-name">Ingestion Layer<span class="l-tag">Get the data in</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-5">
+            <div class="grp"><h4>Batch Ingestion</h4><div class="chips"><span class="chip">Apache NiFi</span><span class="chip">Airbyte</span><span class="chip">Fivetran</span></div></div>
+            <div class="grp"><h4>Streaming Ingestion</h4><div class="chips"><span class="chip">Kafka</span><span class="chip">Pulsar</span><span class="chip">Kinesis</span></div></div>
+            <div class="grp"><h4>CDC</h4><div class="chips"><span class="chip">Debezium</span><span class="chip">AWS DMS</span></div></div>
+            <div class="grp"><h4>APIs / Webhooks</h4><div class="chips"><span class="chip">REST</span><span class="chip">GraphQL</span></div></div>
+            <div class="grp"><h4>Message Queues</h4><div class="chips"><span class="chip">Kafka</span><span class="chip">RabbitMQ</span><span class="chip">SQS</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3 DATA ENGINEERING -->
+      <section class="layer cat-found" data-cat="found">
+        <div class="l-label"><div class="l-num">3</div><div><div class="l-name">Data Engineering &amp; Modeling Layer<span class="l-tag">The foundation</span></div></div></div>
+        <div class="l-body">
+          <div class="medal">
+            <div class="m-tile m-bronze"><h5>Bronze (Raw)</h5><div class="m-sub">As-is, immutable</div><ul><li>Land raw data</li><li>Preserve lineage</li><li>Schema-on-read</li></ul></div>
+            <div class="m-tile m-silver"><h5>Silver (Clean)</h5><div class="m-sub">Conformed</div><ul><li>Cleansed</li><li>Standardized</li><li>Deduplicated</li><li>Integrated</li></ul></div>
+            <div class="m-tile m-gold"><h5>Gold (Curated)</h5><div class="m-sub">Business ready</div><ul><li>Modeled (Dim / Fact)</li><li>Aggregations</li><li>Metrics / KPIs</li><li>Historical &amp; SCDs</li></ul></div>
+            <div class="m-tile m-sem"><h5>Semantic Layer</h5><div class="m-sub">Business meaning</div><ul><li>Business definitions</li><li>Metrics layer</li><li>Relationships</li><li>Access controls</li><li>Data products</li></ul></div>
+          </div>
+          <div class="grp-row cols-2">
+            <div class="grp"><h4>Modeling Approaches (Still Relevant)</h4><div class="chips">
+              <span class="chip hl">Kimball — Dimensional Modeling</span><span class="chip hl">Inmon — Enterprise Data Warehouse</span><span class="chip hl">Data Vault — Agile, Scalable, Audit-Friendly</span>
+              <span class="chip">Conformed dimensions</span><span class="chip">Star schemas</span><span class="chip">BI &amp; analytics</span><span class="chip">Subject-oriented</span><span class="chip">Normalized EDW</span><span class="chip">Hubs, Links, Satellites</span><span class="chip">Raw Data Vault</span><span class="chip">Scalability &amp; agility</span>
+            </div></div>
+            <div class="grp"><h4>Data Quality &amp; Governance</h4><div class="chips">
+              <span class="chip">Data quality (validation, rules)</span><span class="chip">Lineage (end-to-end)</span><span class="chip">Data catalog (Unity Catalog, DataHub, OpenMetadata)</span><span class="chip">Governance (RBAC / ABAC)</span><span class="chip">Policies &amp; compliance (GDPR, HIPAA)</span>
+            </div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 KNOWLEDGE & CONTEXT -->
+      <section class="layer cat-know" data-cat="know">
+        <div class="l-label"><div class="l-num">4</div><div><div class="l-name">Knowledge &amp; Context Layer<span class="l-tag">Organize knowledge</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-5">
+            <div class="grp"><h4>Documents &amp; Content</h4><div class="chips"><span class="chip">PDF</span><span class="chip">DOCX</span><span class="chip">HTML</span><span class="chip">Wikis</span><span class="chip">Tickets</span></div></div>
+            <div class="grp"><h4>Metadata Management</h4><div class="chips"><span class="chip">Unity Catalog</span><span class="chip">Microsoft Purview</span><span class="chip">DataHub</span></div></div>
+            <div class="grp"><h4>Knowledge Graphs</h4><div class="chips"><span class="chip">Neo4j</span><span class="chip">Graph RAG</span></div></div>
+            <div class="grp"><h4>Business Ontologies &amp; Glossaries</h4><div class="chips"><span class="chip">Taxonomies</span><span class="chip">Business terms</span></div></div>
+            <div class="grp"><h4>Data Products (Data Mesh)</h4><div class="chips"><span class="chip">Domain ownership</span><span class="chip">Contracts</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 EMBEDDING -->
+      <section class="layer cat-know" data-cat="know">
+        <div class="l-label"><div class="l-num">5</div><div><div class="l-name">Embedding Layer<span class="l-tag">Turn text into vectors</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-4">
+            <div class="grp"><h4>Embedding Models</h4><div class="chips"><span class="chip">OpenAI</span><span class="chip">Cohere</span><span class="chip">Voyage</span><span class="chip">BGE</span><span class="chip">E5</span><span class="chip">BAAI</span><span class="chip">Jina</span></div></div>
+            <div class="grp"><h4>Chunking Strategies</h4><div class="chips"><span class="chip">Recursive</span><span class="chip">Semantic</span><span class="chip">Token-sized</span><span class="chip">Hierarchical</span><span class="chip">Sliding window</span></div></div>
+            <div class="grp"><h4>Enhancements</h4><div class="chips"><span class="chip">Metadata enrichment</span><span class="chip">Summarization</span><span class="chip">Normalization</span></div></div>
+            <div class="grp"><h4>Indexing</h4><div class="chips"><span class="chip">Offline indexing</span><span class="chip">Incremental indexing</span><span class="chip">Real-time indexing</span></div></div>
+          </div>
+          <div class="grp-row">
+            <div class="grp"><h4>Retrieval Techniques</h4><div class="chips"><span class="chip">Hybrid search (BM25 + vector)</span><span class="chip">Dense retrieval</span><span class="chip">Sparse retrieval</span><span class="chip">Reranking (cross-encoder)</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 VECTOR STORE -->
+      <section class="layer cat-know" data-cat="know">
+        <div class="l-label"><div class="l-num">6</div><div><div class="l-name">Vector Store Layer<span class="l-tag">Store &amp; index vectors</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row">
+            <div class="grp"><h4>Vector Databases</h4><div class="chips"><span class="chip">Pinecone</span><span class="chip">Weaviate</span><span class="chip">Milvus</span><span class="chip">Qdrant</span><span class="chip">pgvector (PostgreSQL)</span><span class="chip">Chroma</span><span class="chip">Databricks Vector Search</span><span class="chip">Elasticsearch (vector)</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 FOUNDATION MODELS -->
+      <section class="layer cat-ai" data-cat="ai">
+        <div class="l-label"><div class="l-num">7</div><div><div class="l-name">Foundation Model Layer<span class="l-tag">Brains</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-3">
+            <div class="grp"><h4>Proprietary Models</h4><div class="chips"><span class="chip">OpenAI GPT-4o / o1</span><span class="chip">Anthropic Claude</span><span class="chip">Google Gemini</span><span class="chip">Mistral AI</span><span class="chip">Cohere Command R</span><span class="chip">DeepSeek</span></div></div>
+            <div class="grp"><h4>Open-Source Models (Self-Hosted / Fine-Tuned)</h4><div class="chips"><span class="chip">Llama 3.1</span><span class="chip">Qwen 2.5</span><span class="chip">Mixtral 8×22B</span><span class="chip">Gemma 2</span><span class="chip">Phi-3</span><span class="chip">DBRX</span></div></div>
+            <div class="grp"><h4>Specialized Models</h4><div class="chips"><span class="chip">Code (CodeLlama, StarCoder)</span><span class="chip">Embedding (E5, BGE, Voyage)</span><span class="chip">Vision (LLaVA, GPT-4o Vision)</span><span class="chip">Speech (Whisper, Parakeet)</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 CONTEXT ENGINEERING -->
+      <section class="layer cat-ai" data-cat="ai">
+        <div class="l-label"><div class="l-num">8</div><div><div class="l-name">Context Engineering Layer<span class="l-tag">How AI gets context</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-5">
+            <div class="grp"><h4>RAG Patterns</h4><div class="chips"><span class="chip">Naive RAG</span><span class="chip">Advanced RAG</span><span class="chip">Modular RAG</span><span class="chip">Multi-hop RAG</span><span class="chip">Agentic RAG</span></div></div>
+            <div class="grp"><h4>Knowledge Integration</h4><div class="chips"><span class="chip">Knowledge graphs</span><span class="chip">Community detection</span><span class="chip">Hybrid context</span></div></div>
+            <div class="grp"><h4>Memory</h4><div class="chips"><span class="chip">Short-term memory</span><span class="chip">Long-term memory</span><span class="chip">Vector memory</span><span class="chip">Episodic memory</span></div></div>
+            <div class="grp"><h4>Reasoning Techniques</h4><div class="chips"><span class="chip">Chain of Thought (CoT)</span><span class="chip">Tree of Thoughts (ToT)</span><span class="chip">Self-consistency</span></div></div>
+            <div class="grp"><h4>Planning &amp; Decomposition</h4><div class="chips"><span class="chip">Task decomposition</span><span class="chip">Subtask planning</span><span class="chip">ReAct (Reason + Act)</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9 AGENT FRAMEWORKS -->
+      <section class="layer cat-ai" data-cat="ai">
+        <div class="l-label"><div class="l-num">9</div><div><div class="l-name">Agent Framework Layer<span class="l-tag">Build intelligent agents</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row">
+            <div class="grp"><h4>Frameworks</h4><div class="chips"><span class="chip">LangChain</span><span class="chip">LangGraph</span><span class="chip">LlamaIndex</span><span class="chip">CrewAI</span><span class="chip">AutoGen</span><span class="chip">Semantic Kernel</span><span class="chip">Agno</span><span class="chip">Haystack</span><span class="chip">DSPy</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10 AGENT COMMUNICATION -->
+      <section class="layer cat-ai" data-cat="ai">
+        <div class="l-label"><div class="l-num">10</div><div><div class="l-name">Agent Communication &amp; Tooling Layer<span class="l-tag">Connect to the world</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-4">
+            <div class="grp"><h4>Protocols</h4><div class="chips"><span class="chip hl">MCP (Model Context Protocol)</span><span class="chip hl">A2A (Agent-to-Agent)</span><span class="chip hl">ACP (Agent Communication Protocol)</span></div></div>
+            <div class="grp"><h4>Tools / Connectors (MCP Tools)</h4><div class="chips"><span class="chip">Databases</span><span class="chip">Files / storage</span><span class="chip">APIs</span><span class="chip">Web search</span><span class="chip">Code / functions</span><span class="chip">Calculators</span></div></div>
+            <div class="grp"><h4>Tool Servers / Gateways</h4><div class="chips"><span class="chip">MCP servers</span><span class="chip">API gateways</span><span class="chip">Function calling</span></div></div>
+            <div class="grp"><h4>Search Interfaces</h4><div class="chips"><span class="chip">Semantic search</span><span class="chip">Enterprise search</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11 MEMORY -->
+      <section class="layer cat-ai" data-cat="ai">
+        <div class="l-label"><div class="l-num">11</div><div><div class="l-name">Memory Layer<span class="l-tag">Remember &amp; learn</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-2">
+            <div class="grp"><h4>Memory Platforms</h4><div class="chips"><span class="chip">Mem0</span><span class="chip">Zep</span><span class="chip">Letta (MemGPT)</span><span class="chip">Pinecone</span><span class="chip">Redis</span></div></div>
+            <div class="grp"><h4>Memory Types</h4><div class="chips"><span class="chip">Session memory</span><span class="chip">Long-term memory</span><span class="chip">Entity memory</span><span class="chip">Procedural memory</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 12 ORCHESTRATION -->
+      <section class="layer cat-ops" data-cat="ops">
+        <div class="l-label"><div class="l-num">12</div><div><div class="l-name">Orchestration Layer<span class="l-tag">Coordinate everything</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-2">
+            <div class="grp"><h4>Workflow Orchestrators</h4><div class="chips"><span class="chip">LangGraph</span><span class="chip">Temporal</span><span class="chip">Airflow</span><span class="chip">Dagster</span><span class="chip">Prefect</span><span class="chip">Step Functions</span></div></div>
+            <div class="grp"><h4>Workflow Patterns</h4><div class="chips"><span class="chip">Sequential</span><span class="chip">Parallel</span><span class="chip">Conditional</span><span class="chip">Human-in-the-loop</span><span class="chip">Event-driven</span><span class="chip">Saga / compensation</span><span class="chip">Retries</span><span class="chip">Checkpointing</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13 EVALUATION -->
+      <section class="layer cat-ops" data-cat="ops">
+        <div class="l-label"><div class="l-num">13</div><div><div class="l-name">Evaluation &amp; Testing Layer<span class="l-tag">Measure quality</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-2">
+            <div class="grp"><h4>Eval Frameworks</h4><div class="chips"><span class="chip">RAGAS</span><span class="chip">DeepEval</span><span class="chip">TruLens</span><span class="chip">LangSmith Evals</span><span class="chip">Promptfoo</span></div></div>
+            <div class="grp"><h4>What to Measure</h4><div class="chips"><span class="chip">Answer relevancy</span><span class="chip">Faithfulness / groundedness</span><span class="chip">Context precision &amp; recall</span><span class="chip">Hallucination rate</span><span class="chip">Toxicity / safety</span><span class="chip">Regression tests</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 14 OBSERVABILITY -->
+      <section class="layer cat-ops" data-cat="ops">
+        <div class="l-label"><div class="l-num">14</div><div><div class="l-name">Observability Layer<span class="l-tag">See what's happening</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-2">
+            <div class="grp"><h4>LLM / Agent Observability</h4><div class="chips"><span class="chip">LangSmith</span><span class="chip">Langfuse</span><span class="chip">Arize Phoenix</span><span class="chip">Helicone</span><span class="chip">W&amp;B Weave</span></div></div>
+            <div class="grp"><h4>Observability Areas</h4><div class="chips"><span class="chip">Traces &amp; spans</span><span class="chip">Token usage &amp; cost</span><span class="chip">Latency</span><span class="chip">Errors &amp; failures</span><span class="chip">Drift monitoring</span><span class="chip">Answer accuracy feedback</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 15 INFERENCE & SECURITY -->
+      <section class="layer cat-ops" data-cat="ops">
+        <div class="l-label"><div class="l-num">15</div><div><div class="l-name">Inference &amp; Operations<span class="l-tag">Operate at scale</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-3">
+            <div class="grp"><h4>LLM Ops</h4><div class="chips"><span class="chip">vLLM</span><span class="chip">Ollama</span><span class="chip">TGI</span><span class="chip">Model routing</span><span class="chip">Caching</span><span class="chip">Rate limiting</span><span class="chip">Guardrails</span></div></div>
+            <div class="grp"><h4>MLOps</h4><div class="chips"><span class="chip">MLflow</span><span class="chip">Model registry</span><span class="chip">Feature stores</span><span class="chip">CI/CD for models</span><span class="chip">A/B testing</span></div></div>
+            <div class="grp"><h4>AIOps</h4><div class="chips"><span class="chip">Anomaly detection</span><span class="chip">Auto-remediation</span><span class="chip">Capacity planning</span><span class="chip">Incident response</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 16 APPLICATION -->
+      <section class="layer cat-app" data-cat="app">
+        <div class="l-label"><div class="l-num">16</div><div><div class="l-name">Application Layer<span class="l-tag">User interfaces</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-5">
+            <div class="grp"><h4>Web Apps</h4><div class="chips"><span class="chip">React</span><span class="chip">Next.js</span><span class="chip">Streamlit</span><span class="chip">Gradio</span></div></div>
+            <div class="grp"><h4>LLM UI Tools</h4><div class="chips"><span class="chip">Chainlit</span><span class="chip">Open WebUI</span><span class="chip">AnythingLLM</span></div></div>
+            <div class="grp"><h4>Chat / Copilot Interfaces</h4><div class="chips"><span class="chip">Assistants</span><span class="chip">Copilots</span><span class="chip">Slack / Teams bots</span></div></div>
+            <div class="grp"><h4>Automations &amp; Agents</h4><div class="chips"><span class="chip">n8n</span><span class="chip">Zapier</span><span class="chip">Background agents</span></div></div>
+            <div class="grp"><h4>Embedded AI</h4><div class="chips"><span class="chip">In-product AI</span><span class="chip">Plugins</span><span class="chip">SDKs / APIs</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 17 BUSINESS OUTCOMES -->
+      <section class="layer cat-app" data-cat="app">
+        <div class="l-label"><div class="l-num">17</div><div><div class="l-name">Business Outcomes<span class="l-tag">Why we do all this</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row">
+            <div class="grp"><h4>Outcomes</h4><div class="chips"><span class="chip hl">Better decisions</span><span class="chip hl">Operational efficiency</span><span class="chip hl">Cost optimization</span><span class="chip hl">Revenue growth</span><span class="chip hl">Risk reduction</span><span class="chip hl">Customer experience</span><span class="chip hl">Innovation</span><span class="chip hl">Competitive advantage</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 18 GOVERNANCE & SECURITY -->
+      <section class="layer cat-ops" data-cat="ops">
+        <div class="l-label"><div class="l-num">18</div><div><div class="l-name">Governance &amp; Security<span class="l-tag">Trust &amp; control — spans every layer</span></div></div></div>
+        <div class="l-body">
+          <div class="grp-row cols-5">
+            <div class="grp"><h4>Identity &amp; Access</h4><div class="chips"><span class="chip">SSO</span><span class="chip">RBAC / ABAC</span><span class="chip">Least privilege</span></div></div>
+            <div class="grp"><h4>Data Protection</h4><div class="chips"><span class="chip">Encryption</span><span class="chip">Masking</span><span class="chip">Tokenization</span></div></div>
+            <div class="grp"><h4>Compliance</h4><div class="chips"><span class="chip">GDPR</span><span class="chip">HIPAA</span><span class="chip">SOC 2</span><span class="chip">EU AI Act</span></div></div>
+            <div class="grp"><h4>Privacy</h4><div class="chips"><span class="chip">PII detection</span><span class="chip">Consent</span><span class="chip">Data minimization</span></div></div>
+            <div class="grp"><h4>Trust &amp; Transparency</h4><div class="chips"><span class="chip">Model cards</span><span class="chip">Audit trails</span><span class="chip">Explainability</span><span class="chip">Responsible AI</span></div></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="side">
+      <div class="card">
+        <h3><span class="dot"></span>Why We Still Do This</h3>
+        <div class="why">
+          <div class="w-item"><div class="w-ic">🛡️</div><div><b>Solve business problems</b><span>Data + AI turns complexity into impact.</span></div></div>
+          <div class="w-item"><div class="w-ic">📈</div><div><b>Improve decisions</b><span>Faster, smarter, data-driven decisions.</span></div></div>
+          <div class="w-item"><div class="w-ic">⚙️</div><div><b>Increase efficiency</b><span>Automate, augment and scale human capabilities.</span></div></div>
+          <div class="w-item"><div class="w-ic">💰</div><div><b>Reduce cost &amp; risk</b><span>Operational excellence with governance.</span></div></div>
+          <div class="w-item"><div class="w-ic">🚀</div><div><b>Create advantage</b><span>Innovate, personalize and deliver better outcomes.</span></div></div>
+        </div>
+        <div class="answer"><b>No one has the perfect answer — but we know the why</b>Turn data into trusted intelligence at scale.</div>
+      </div>
+
+      <div class="card">
+        <h3><span class="dot"></span>Why Kimball, Inmon &amp; Data Vault Still Matter</h3>
+        <ul class="checks">
+          <li>They solve data complexity.</li>
+          <li>They ensure consistency &amp; trust.</li>
+          <li>They provide repeatable patterns.</li>
+          <li>They scale with your business.</li>
+          <li>They integrate with modern AI.</li>
+          <li>They are technology agnostic.</li>
+        </ul>
+        <div class="principle">Principles don't change. Platforms change. Purpose stays the same:
+          <span class="big">Turn data into trusted intelligence that drives real impact. 🎯</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="dot"></span>Popular Tech Landscape <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink-soft)">(EXAMPLES)</span></h3>
+        <div class="land">
+          <div class="grp"><h4>Cloud Platforms</h4><div class="chips"><span class="chip">AWS</span><span class="chip">Azure</span><span class="chip">Google Cloud</span></div></div>
+          <div class="grp"><h4>Data Platforms</h4><div class="chips"><span class="chip">Databricks</span><span class="chip">Snowflake</span><span class="chip">BigQuery</span><span class="chip">Redshift</span><span class="chip">Azure Synapse</span></div></div>
+          <div class="grp"><h4>Vector Databases</h4><div class="chips"><span class="chip">Pinecone</span><span class="chip">Weaviate</span><span class="chip">Milvus</span><span class="chip">Qdrant</span><span class="chip">pgvector</span><span class="chip">Chroma</span><span class="chip">Elasticsearch</span></div></div>
+          <div class="grp"><h4>Dev / App Frameworks</h4><div class="chips"><span class="chip">Python</span><span class="chip">TypeScript</span><span class="chip">Node.js</span><span class="chip">React</span><span class="chip">Next.js</span></div></div>
+          <div class="grp"><h4>Monitoring &amp; Observability</h4><div class="chips"><span class="chip">Prometheus</span><span class="chip">Grafana</span><span class="chip">ELK Stack</span><span class="chip">New Relic</span><span class="chip">Datadog</span></div></div>
+          <div class="grp"><h4>Deployment Platforms</h4><div class="chips"><span class="chip">Vercel</span><span class="chip">Netlify</span><span class="chip">Render</span><span class="chip">Fly.io</span><span class="chip">AWS Amplify</span><span class="chip">S3 compatible</span></div></div>
+          <div class="grp"><h4>Storage</h4><div class="chips"><span class="chip">Amazon S3</span><span class="chip">Azure Data Lake Storage</span><span class="chip">Google Cloud Storage</span><span class="chip">MinIO</span></div></div>
+          <div class="grp"><h4>Data Catalog &amp; Governance</h4><div class="chips"><span class="chip">Unity Catalog</span><span class="chip">Microsoft Purview</span><span class="chip">DataHub</span><span class="chip">OpenMetadata</span></div></div>
+        </div>
+      </div>
+
+      <div class="card dark">
+        <h3><span class="dot"></span>The Bottom Line</h3>
+        <div class="bottom">
+          <div class="b-item"><div class="b-ic">🧠</div><div><b>AI didn't replace data engineering.</b> It raised the bar.</div></div>
+          <div class="b-item"><div class="b-ic">📊</div><div><b>Good data is not optional.</b> It is the competitive advantage.</div></div>
+          <div class="b-item"><div class="b-ic">🔁</div><div><b>Principles don't change.</b> Platforms change.</div></div>
+          <div class="b-item"><div class="b-ic">🏗️</div><div><b>Architecture is your force multiplier.</b></div></div>
+          <div class="b-item"><div class="b-ic">🧭</div><div><b>Build the foundation.</b> Then build the future.</div></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ===================== LEGEND ===================== -->
+  <div class="legend" id="legend">
+    <span class="lg-title">Legend · click to filter</span>
+    <span class="lg" data-cat="found"><span class="sw found"></span>Data Foundation</span>
+    <span class="lg" data-cat="know"><span class="sw know"></span>Knowledge &amp; Context</span>
+    <span class="lg" data-cat="ai"><span class="sw ai"></span>AI &amp; Intelligence</span>
+    <span class="lg" data-cat="ops"><span class="sw ops"></span>Operations &amp; Governance</span>
+    <span class="lg" data-cat="app"><span class="sw app"></span>Application &amp; Outcomes</span>
+    <span class="lg-hint">Click a category to highlight its layers · click again to reset</span>
+  </div>
+
+  <footer>FROM DATA TO INTELLIGENCE · ENTERPRISE ARCHITECTURE REFERENCE · 2026 · DATA QUALITY, MODELING, GOVERNANCE &amp; ARCHITECTURE NEVER GO OUT OF STYLE</footer>
+</div>
+
+<button class="to-top" id="toTop" aria-label="Back to top" title="Back to top">↑</button>
+
+<script>
+(function(){
+  /* ---------- legend filter ---------- */
+  var legend = document.getElementById('legend');
+  var layers = Array.prototype.slice.call(document.querySelectorAll('.layer'));
+  var active = null;
+  legend.addEventListener('click', function(e){
+    var btn = e.target.closest('.lg');
+    if(!btn) return;
+    var cat = btn.getAttribute('data-cat');
+    Array.prototype.forEach.call(legend.querySelectorAll('.lg'), function(b){ b.classList.remove('active'); });
+    if(active === cat){
+      active = null;
+      layers.forEach(function(l){ l.classList.remove('dim'); });
+    } else {
+      active = cat;
+      btn.classList.add('active');
+      layers.forEach(function(l){ l.classList.toggle('dim', l.getAttribute('data-cat') !== cat); });
+    }
+  });
+
+  /* ---------- layer IDs, permalinks & jump nav ---------- */
+  var nav = document.getElementById('jumpnav');
+  var legendLink = nav.querySelector('[data-static]');
+  layers.forEach(function(l){
+    var num = l.querySelector('.l-num').textContent.trim();
+    var nameEl = l.querySelector('.l-name');
+    var name = nameEl.childNodes[0].textContent.trim();
+    var id = 'layer-' + num;
+    l.id = id;
+
+    var a = document.createElement('a');
+    a.href = '#' + id;
+    a.innerHTML = '<span class="jn-dot ' + l.getAttribute('data-cat') + '"></span>' + num + ' · ' + name;
+    nav.insertBefore(a, legendLink);
+
+    var perm = document.createElement('a');
+    perm.className = 'l-anchor';
+    perm.href = '#' + id;
+    perm.title = 'Link to layer ' + num + ' — ' + name;
+    perm.textContent = '🔗';
+    l.querySelector('.l-label').appendChild(perm);
+  });
+
+  /* ---------- scrollspy: highlight current layer in nav ---------- */
+  if('IntersectionObserver' in window){
+    var navLinks = {};
+    Array.prototype.forEach.call(nav.querySelectorAll('a[href^="#layer-"]'), function(a){
+      navLinks[a.getAttribute('href').slice(1)] = a;
+    });
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          Object.keys(navLinks).forEach(function(k){ navLinks[k].classList.remove('jn-current'); });
+          var link = navLinks[en.target.id];
+          if(link){
+            link.classList.add('jn-current');
+            link.scrollIntoView({block:'nearest', inline:'center', behavior:'smooth'});
+          }
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    layers.forEach(function(l){ io.observe(l); });
+  }
+
+  /* ---------- back to top ---------- */
+  var toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', function(){
+    toTop.classList.toggle('show', window.scrollY > 600);
+  }, {passive:true});
+  toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+
+  /* ---------- chip → official site hyperlinks ---------- */
+  var SITES = {
+    'Oracle':'https://www.oracle.com/database/',
+    'SQL Server':'https://www.microsoft.com/sql-server',
+    'MySQL':'https://www.mysql.com/',
+    'PostgreSQL':'https://www.postgresql.org/',
+    'MongoDB':'https://www.mongodb.com/',
+    'Parquet':'https://parquet.apache.org/',
+    'GraphQL':'https://graphql.org/',
+    'Kafka':'https://kafka.apache.org/',
+    'Pulsar':'https://pulsar.apache.org/',
+    'Debezium':'https://debezium.io/',
+    'Fivetran':'https://www.fivetran.com/',
+    'Apache NiFi':'https://nifi.apache.org/',
+    'Airbyte':'https://airbyte.com/',
+    'Kinesis':'https://aws.amazon.com/kinesis/',
+    'AWS DMS':'https://aws.amazon.com/dms/',
+    'RabbitMQ':'https://www.rabbitmq.com/',
+    'SQS':'https://aws.amazon.com/sqs/',
+    'Unity Catalog':'https://www.unitycatalog.io/',
+    'Microsoft Purview':'https://azure.microsoft.com/products/purview',
+    'DataHub':'https://datahubproject.io/',
+    'OpenMetadata':'https://open-metadata.org/',
+    'Neo4j':'https://neo4j.com/',
+    'OpenAI GPT-4o / o1':'https://openai.com/',
+    'OpenAI':'https://openai.com/',
+    'Anthropic Claude':'https://www.anthropic.com/',
+    'Google Gemini':'https://gemini.google.com/',
+    'Mistral AI':'https://mistral.ai/',
+    'Cohere Command R':'https://cohere.com/',
+    'Cohere':'https://cohere.com/',
+    'DeepSeek':'https://www.deepseek.com/',
+    'Llama 3.1':'https://www.llama.com/',
+    'Qwen 2.5':'https://github.com/QwenLM/Qwen2.5',
+    'Mixtral 8×22B':'https://mistral.ai/news/mixtral-8x22b',
+    'Gemma 2':'https://ai.google.dev/gemma',
+    'Phi-3':'https://azure.microsoft.com/products/phi',
+    'DBRX':'https://www.databricks.com/',
+    'Code (CodeLlama, StarCoder)':'https://github.com/meta-llama/codellama',
+    'Embedding (E5, BGE, Voyage)':'https://huggingface.co/BAAI',
+    'Vision (LLaVA, GPT-4o Vision)':'https://llava-vl.github.io/',
+    'Speech (Whisper, Parakeet)':'https://github.com/openai/whisper',
+    'Voyage':'https://www.voyageai.com/',
+    'BGE':'https://huggingface.co/BAAI',
+    'E5':'https://huggingface.co/intfloat/e5-large-v2',
+    'BAAI':'https://huggingface.co/BAAI',
+    'Jina':'https://jina.ai/',
+    'Pinecone':'https://www.pinecone.io/',
+    'Weaviate':'https://weaviate.io/',
+    'Milvus':'https://milvus.io/',
+    'Qdrant':'https://qdrant.tech/',
+    'pgvector (PostgreSQL)':'https://github.com/pgvector/pgvector',
+    'pgvector':'https://github.com/pgvector/pgvector',
+    'Chroma':'https://www.trychroma.com/',
+    'Databricks Vector Search':'https://www.databricks.com/product/machine-learning/vector-search',
+    'Elasticsearch (vector)':'https://www.elastic.co/elasticsearch/vector-database',
+    'Elasticsearch':'https://www.elastic.co/elasticsearch',
+    'LangChain':'https://www.langchain.com/',
+    'LangGraph':'https://www.langchain.com/langgraph',
+    'LlamaIndex':'https://www.llamaindex.ai/',
+    'CrewAI':'https://www.crewai.com/',
+    'AutoGen':'https://microsoft.github.io/autogen/',
+    'Semantic Kernel':'https://github.com/microsoft/semantic-kernel',
+    'Agno':'https://www.agno.com/',
+    'Haystack':'https://haystack.deepset.ai/',
+    'DSPy':'https://dspy.ai/',
+    'MCP (Model Context Protocol)':'https://modelcontextprotocol.io/',
+    'A2A (Agent-to-Agent)':'https://github.com/a2aproject/A2A',
+    'Mem0':'https://mem0.ai/',
+    'Zep':'https://www.getzep.com/',
+    'Letta (MemGPT)':'https://www.letta.com/',
+    'Redis':'https://redis.io/',
+    'Temporal':'https://temporal.io/',
+    'Airflow':'https://airflow.apache.org/',
+    'Dagster':'https://dagster.io/',
+    'Prefect':'https://www.prefect.io/',
+    'Step Functions':'https://aws.amazon.com/step-functions/',
+    'RAGAS':'https://docs.ragas.io/',
+    'DeepEval':'https://deepeval.com/',
+    'TruLens':'https://www.trulens.org/',
+    'LangSmith Evals':'https://www.langchain.com/langsmith',
+    'LangSmith':'https://www.langchain.com/langsmith',
+    'Promptfoo':'https://www.promptfoo.dev/',
+    'Langfuse':'https://langfuse.com/',
+    'Arize Phoenix':'https://phoenix.arize.com/',
+    'Helicone':'https://www.helicone.ai/',
+    'W&B Weave':'https://wandb.ai/site/weave/',
+    'vLLM':'https://github.com/vllm-project/vllm',
+    'Ollama':'https://ollama.com/',
+    'TGI':'https://huggingface.co/docs/text-generation-inference',
+    'MLflow':'https://mlflow.org/',
+    'ReAct (Reason + Act)':'https://arxiv.org/abs/2210.03629',
+    'React':'https://react.dev/',
+    'Next.js':'https://nextjs.org/',
+    'Streamlit':'https://streamlit.io/',
+    'Gradio':'https://www.gradio.app/',
+    'Chainlit':'https://chainlit.io/',
+    'Open WebUI':'https://openwebui.com/',
+    'AnythingLLM':'https://anythingllm.com/',
+    'n8n':'https://n8n.io/',
+    'Zapier':'https://zapier.com/',
+    'AWS Amplify':'https://aws.amazon.com/amplify/',
+    'AWS':'https://aws.amazon.com/',
+    'Azure Synapse':'https://azure.microsoft.com/products/synapse-analytics',
+    'Azure Data Lake Storage':'https://azure.microsoft.com/products/storage/data-lake-storage',
+    'Azure':'https://azure.microsoft.com/',
+    'Google Cloud Storage':'https://cloud.google.com/storage',
+    'Google Cloud':'https://cloud.google.com/',
+    'Databricks':'https://www.databricks.com/',
+    'Snowflake':'https://www.snowflake.com/',
+    'BigQuery':'https://cloud.google.com/bigquery',
+    'Redshift':'https://aws.amazon.com/redshift/',
+    'Python':'https://www.python.org/',
+    'TypeScript':'https://www.typescriptlang.org/',
+    'Node.js':'https://nodejs.org/',
+    'Prometheus':'https://prometheus.io/',
+    'Grafana':'https://grafana.com/',
+    'ELK Stack':'https://www.elastic.co/elastic-stack',
+    'New Relic':'https://newrelic.com/',
+    'Datadog':'https://www.datadoghq.com/',
+    'Vercel':'https://vercel.com/',
+    'Netlify':'https://www.netlify.com/',
+    'Render':'https://render.com/',
+    'Fly.io':'https://fly.io/',
+    'Amazon S3':'https://aws.amazon.com/s3/',
+    'MinIO':'https://min.io/',
+    'GDPR':'https://gdpr.eu/',
+    'HIPAA':'https://www.hhs.gov/hipaa/index.html',
+    'EU AI Act':'https://artificialintelligenceact.eu/',
+    'Data catalog (Unity Catalog, DataHub, OpenMetadata)':'https://datahubproject.io/'
+  };
+  var keys = Object.keys(SITES).sort(function(a,b){ return b.length - a.length; });
+
+  function findUrl(text){
+    var t = text.toLowerCase();
+    var i, k;
+    for(i=0;i<keys.length;i++){ k=keys[i]; if(t === k.toLowerCase()) return SITES[k]; }
+    for(i=0;i<keys.length;i++){ k=keys[i]; if(t.indexOf(k.toLowerCase()) === 0) return SITES[k]; }
+    for(i=0;i<keys.length;i++){ k=keys[i]; if(t.indexOf(k.toLowerCase()) !== -1) return SITES[k]; }
+    return null;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('span.chip'), function(chip){
+    var url = findUrl(chip.textContent.trim());
+    if(!url) return;
+    var a = document.createElement('a');
+    a.className = chip.className;
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.title = 'Open official site: ' + url;
+    a.textContent = chip.textContent;
+    chip.replaceWith(a);
+  });
+})();
+</script>
+</body>
+</html>
